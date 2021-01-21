@@ -178,7 +178,7 @@ public class AI extends Boat {
 
         }
 
-        // Otherwise look for obstacles to dodge, look for powerUps to collect and try to stay in th lane
+        // Otherwise look for obstacles to dodge and try to stay in th lane
         else {
             dodgeObstacles();
             stayInLane(predictLimits);

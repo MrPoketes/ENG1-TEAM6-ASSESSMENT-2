@@ -87,8 +87,7 @@ public class Lane {
         int nrObstacles = obstacles.length;
         float segmentLength = mapHeight / nrObstacles;
         for (int i = 0; i < nrObstacles; i++) {
-            // TODO: Change bound to 6
-            int randomIndex = new Random().nextInt(4);
+            int randomIndex = new Random().nextInt(6);
             float scale = 0f;
             if (randomIndex == 0 || randomIndex == 5)
                 scale = -0.8f;
@@ -112,7 +111,7 @@ public class Lane {
         int nrPowerUps = powerUps.length;
         float segmentLength = mapHeight / nrPowerUps;
         for (int i = 0; i < nrPowerUps; i++) {
-            int randomIndex = new Random().nextInt(2);
+            int randomIndex = new Random().nextInt(5);
             float scale = 0f;
 
             powerUps[i] = new PowerUp("PowerUps/PowerUp" + (randomIndex + 1) + ".png");

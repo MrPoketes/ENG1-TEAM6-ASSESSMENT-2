@@ -49,8 +49,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     // Added code end
 
-    private float timeOfContact = 0f;
-
     @Override
     public void create() {
         // Initialize the sprite batches
@@ -137,7 +135,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     } else if (powerUpName.equals("speedBoost")) {
                         toIncreaseSpeed.add(fixtureB.getBody());
                     } else if (powerUpName.equals("accelerationBoost")) {
-                        timeOfContact = GameData.currentTimer;
                         toIncreaseAcceleration.add(fixtureB.getBody());
                     } else if (powerUpName.equals("timeReduction")) {
                         toReduceTime.add(fixtureB.getBody());
@@ -340,11 +337,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                             obstacle.obstacleBody = null;
                         }
                     }
+                    // Added code start
                     for (PowerUp powerup : lane.powerUps) {
                         if (powerup.powerupBody == body) {
                             powerup.powerupBody = null;
                         }
                     }
+                    // Added code end
                 }
 
 
@@ -391,7 +390,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 }
 
             }
+            // Added code start
             handlePowerUp();
+            // Added code end
 
             toBeRemovedBodies.clear();
             toUpdateHealth.clear();
@@ -431,11 +432,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     if (obstacle.obstacleBody != null)
                         obstacle.drawObstacle(batch);
                 }
+                // Added code start
                 for (PowerUp powerup : lane.powerUps) {
                     if (powerup.powerupBody != null) {
                         powerup.drawPowerUp(batch);
                     }
                 }
+                // Added code end
             }
 
             // Update the camera at the player's position
