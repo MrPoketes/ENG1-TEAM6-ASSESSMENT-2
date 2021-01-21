@@ -1,4 +1,5 @@
 package com.hardgforgif.dragonboatracing.UI;
+// Added code start
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -146,7 +147,9 @@ public class OptionsUI extends UI {
             GameData.currentUI = new MenuUI();
         }
 
-        x = 2 * screenWidth / 5 - MINUS_BUTTON_HEIGHT / 2;
+        // Input handlers for windowed/fullscreen buttons
+
+        x = 2 * screenWidth / 5 - FULLSCREEN_BUTTON_HEIGHT / 2;
         if (clickPos.x < x + FULLSCREEN_BUTTON_WIDTH && clickPos.x > x &&
                 clickPos.y < FULLSCREEN_BUTTON_Y + FULLSCREEN_BUTTON_HEIGHT &&
                 clickPos.y > FULLSCREEN_BUTTON_Y) {
@@ -155,14 +158,13 @@ public class OptionsUI extends UI {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         }
 
-        x = 3 * screenWidth / 5 - PLUS_BUTTON_WIDTH / 2;
+        x = 3 * screenWidth / 5 - WINDOWED_BUTTON_WIDTH / 2;
         if (clickPos.x < x + WINDOWED_BUTTON_WIDTH && clickPos.x > x &&
                 clickPos.y < WINDOWED_BUTTON_Y + WINDOWED_BUTTON_HEIGHT &&
                 clickPos.y > WINDOWED_BUTTON_Y) {
             GameData.fullscreen = false;
             Gdx.graphics.setWindowedMode(1280, 720);
         }
-        // Input handlers for windowed/fullscreen buttons
-
     }
 }
+// Added code end

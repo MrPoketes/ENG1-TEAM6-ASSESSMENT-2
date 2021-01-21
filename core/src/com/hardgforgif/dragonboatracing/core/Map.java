@@ -17,26 +17,21 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.hardgforgif.dragonboatracing.GameData;
 
 public class Map {
+    public Lane[] lanes = new Lane[4];
     // Map components
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
-
     // The size of the screen we will render the map on
     private float screenWidth;
-
     // The width and the height of the map in tiles, used to calculate ratios
     private int mapWidth;
     private int mapHeight;
-
     // The width of each tile in Pixels
     private float unitScale;
-
-    public Lane[] lanes = new Lane[4];
-
     private Texture finishLineTexture;
     private Sprite finishLineSprite;
 
-    public Map(String tmxFile, float width){
+    public Map(String tmxFile, float width) {
         tiledMap = new TmxMapLoader().load(tmxFile);
         screenWidth = width;
 
@@ -57,8 +52,9 @@ public class Map {
 
     /**
      * Creates bodies on the edges of the river, based on a pre-made layer of objects in Tiled
+     *
      * @param collisionLayerName Name of the Tiled layer with the rectangle objects
-     * @param world World to spawn the bodies in
+     * @param world              World to spawn the bodies in
      */
     public void createMapCollisions(String collisionLayerName, World world) {
         // Get the objects from the object layer in the tilemap
@@ -74,9 +70,9 @@ public class Map {
 
             // Find where we need to place the physics body
             float positionX = (rectangle.getX() * unitScale / GameData.METERS_TO_PIXELS) +
-                                (rectangle.getWidth() * unitScale / GameData.METERS_TO_PIXELS / 2);
+                    (rectangle.getWidth() * unitScale / GameData.METERS_TO_PIXELS / 2);
             float positionY = (rectangle.getY() * unitScale / GameData.METERS_TO_PIXELS) +
-                                (rectangle.getHeight() * unitScale / GameData.METERS_TO_PIXELS / 2);
+                    (rectangle.getHeight() * unitScale / GameData.METERS_TO_PIXELS / 2);
             bodyDef.position.set(positionX, positionY);
 
             Body objectBody = world.createBody(bodyDef);
@@ -84,7 +80,7 @@ public class Map {
             // Create the objects fixture, aka shape and physical properties
             PolygonShape shape = new PolygonShape();
             shape.setAsBox(rectangle.getWidth() * unitScale / GameData.METERS_TO_PIXELS / 2,
-                           rectangle.getHeight() * unitScale / GameData.METERS_TO_PIXELS / 2);
+                    rectangle.getHeight() * unitScale / GameData.METERS_TO_PIXELS / 2);
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape = shape;
             fixtureDef.density = 0f;
@@ -112,43 +108,49 @@ public class Map {
 
     /**
      * Instantiates the lane array and spawns obstacles on each of the lanes
+     *
      * @param world World to spawn the obstacles in
      */
-    public void createLanes(World world){
+    public void createLanes(World world) {
         MapLayer leftLayer = tiledMap.getLayers().get("CollisionLayerLeft");
         MapLayer rightLayer = tiledMap.getLayers().get("Lane1");
 
-        lanes[0] = new Lane(mapHeight, leftLayer, rightLayer, 30);
+        lanes[0] = new Lane(mapHeight, leftLayer, rightLayer, 30, 20);
         lanes[0].constructBoundries(unitScale);
         lanes[0].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[0].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
 
         leftLayer = tiledMap.getLayers().get("Lane1");
         rightLayer = tiledMap.getLayers().get("Lane2");
 
-        lanes[1] = new Lane(mapHeight, leftLayer, rightLayer, 30);
+        lanes[1] = new Lane(mapHeight, leftLayer, rightLayer, 30, 20);
         lanes[1].constructBoundries(unitScale);
         lanes[1].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[1].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
 
         leftLayer = tiledMap.getLayers().get("Lane2");
         rightLayer = tiledMap.getLayers().get("Lane3");
 
-        lanes[2] = new Lane(mapHeight, leftLayer, rightLayer, 30);
+        lanes[2] = new Lane(mapHeight, leftLayer, rightLayer, 30, 20);
         lanes[2].constructBoundries(unitScale);
         lanes[2].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[2].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
 
         leftLayer = tiledMap.getLayers().get("Lane3");
         rightLayer = tiledMap.getLayers().get("CollisionLayerRight");
 
-        lanes[3] = new Lane(mapHeight, leftLayer, rightLayer, 30);
+        lanes[3] = new Lane(mapHeight, leftLayer, rightLayer, 30, 20);
         lanes[3].constructBoundries(unitScale);
         lanes[3].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[3].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
     }
 
     /**
      * Creates the finish line at a fixed position
+     *
      * @param textureFile The texture oof the finish line
      */
-    public void createFinishLine(String textureFile){
+    public void createFinishLine(String textureFile) {
         // Create the texture and the sprite of the finish line
         finishLineTexture = new Texture(textureFile);
         finishLineSprite = new Sprite(finishLineTexture);
