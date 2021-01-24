@@ -7,6 +7,7 @@ import com.hardgforgif.dragonboatracing.UI.UI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class GameData {
     // Set the rations between the pixels, meters and tiles
@@ -44,8 +45,17 @@ public class GameData {
     public static float currentTimer = 0f;
     // Difficulty constants for the AI
     public static float[] difficulty = new float[]{0.92f, 0.97f, 1f};
+
+    // Added code start
     // Music volume range [0,1]
     public static float musicVolume = 0.5f;
     // Sets whether the screen should be in fullscreen or windowed
     public static boolean fullscreen = true;
+    // Variable for reducing time, if boat picked up time reduction powerUp
+    public static float[] timeReductions = {0.0f, 0.0f, 0.0f, 0.0f};
+    // Variable
+    public static Stack<Integer> reduceAIAccelerationList = new Stack();
+    // Sets the game difficulty. Available types - easy, medium, hard
+    public static String gameDifficulty = "easy";
+    // Added code end
 }
