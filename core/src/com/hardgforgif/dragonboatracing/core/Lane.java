@@ -19,6 +19,10 @@ public class Lane {
     private MapLayer leftLayer;
     private MapLayer rightLayer;
 
+    // Added code start
+    private int nrObstacles;
+    private int nrPowerUps;
+
     public Lane(int mapHeight, MapLayer left, MapLayer right, int nrObstacles, int nrPowerUps) {
         leftBoundry = new float[mapHeight][2];
         rightBoundry = new float[mapHeight][2];
@@ -29,6 +33,8 @@ public class Lane {
         obstacles = new Obstacle[nrObstacles];
         powerUps = new PowerUp[nrPowerUps];
 
+        this.nrObstacles = obstacles.length;
+        this.nrPowerUps = powerUps.length;
     }
 
     /**
@@ -84,7 +90,6 @@ public class Lane {
      * @param mapHeight Height of the map to draw on
      */
     public void spawnObstacles(World world, float mapHeight) {
-        int nrObstacles = obstacles.length;
         float segmentLength = mapHeight / nrObstacles;
         for (int i = 0; i < nrObstacles; i++) {
             int randomIndex = new Random().nextInt(6);
@@ -108,7 +113,6 @@ public class Lane {
 
     // Added code start
     public void spawnPowerUps(World world, float mapHeight) {
-        int nrPowerUps = powerUps.length;
         float segmentLength = mapHeight / nrPowerUps;
         for (int i = 0; i < nrPowerUps; i++) {
             int randomIndex = new Random().nextInt(5);

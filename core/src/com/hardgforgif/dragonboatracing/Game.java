@@ -67,7 +67,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             world[i] = new World(new Vector2(0f, 0f), true);
 
             // Initialize the map
-            map[i] = new Map("Map1/Map1.tmx", w);
+            map[i] = new Map("Map1/Map1.tmx", w, GameData.gameDifficulty);
 
             // Calculate the ratio between pixels, meters and tiles
             GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
@@ -293,14 +293,49 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
+    public void updateMapDifficulty() {
+        world = new World[3];
+        map = new Map[3];
+        float w = Gdx.graphics.getWidth();
+        for (int i = 0; i < 3; i++) {
+            // Initialize the physics game World
+            world[i] = new World(new Vector2(0f, 0f), true);
+
+            // Initialize the map
+            map[i] = new Map("Map1/Map1.tmx", w, GameData.gameDifficulty);
+
+            // Calculate the ratio between pixels, meters and tiles
+            GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
+            GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
+
+            // Create the collision with the land
+            map[i].createMapCollisions("CollisionLayerLeft", world[i]);
+            map[i].createMapCollisions("CollisionLayerRight", world[i]);
+
+            // Create the lanes, and the obstacles in the physics game world
+            map[i].createLanes(world[i]);
+
+            // Create the finish line
+            map[i].createFinishLine("finishLine.png");
+
+            // Create a new collision handler for the world
+            createContactListener(world[i]);
+        }
+    }
+
     @Override
     public void render() {
+        if (GameData.difficultyChanged) {
+            updateMapDifficulty();
+            GameData.difficultyChanged = false;
+        }
         // Reset the screen
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // If the game is in one of the static state
-        if (GameData.mainMenuState || GameData.choosingBoatState || GameData.GameOverState || GameData.optionsState) {
+        if (GameData.mainMenuState || GameData.choosingBoatState || GameData.GameOverState || GameData.optionsState ||
+                GameData.infoState || GameData.chooseDifficultyState) {
             // Draw the UI and wait for the input
             GameData.currentUI.drawUI(UIbatch, mousePosition, Gdx.graphics.getWidth(), Gdx.graphics.getDeltaTime());
             GameData.currentUI.getInput(Gdx.graphics.getWidth(), clickPosition);
@@ -502,7 +537,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     world[i] = new World(new Vector2(0f, 0f), true);
 
                     // Initialize the map
-                    map[i] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth());
+                    map[i] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth(), GameData.gameDifficulty);
 
                     // Calculate the ratio between pixels, meters and tiles
                     GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
