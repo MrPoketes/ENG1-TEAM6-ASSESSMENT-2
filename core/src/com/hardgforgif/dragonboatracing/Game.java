@@ -293,6 +293,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
+    // Added code start
     public void updateMapDifficulty() {
         world = new World[3];
         map = new Map[3];
@@ -323,6 +324,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
+    // Added code end
     @Override
     public void render() {
         if (GameData.difficultyChanged) {
