@@ -6,5 +6,5 @@ dist: trusty
 jdk: oraclejdk8
 
 script:
-  - gradlew build
-  - gradlew clean tests:test
+  - gradle build
+  - gradle tests:test
