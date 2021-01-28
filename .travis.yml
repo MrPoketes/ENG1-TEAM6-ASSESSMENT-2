@@ -10,4 +10,4 @@ env:
     - TARGET=gradle build
     - TARGET=gradle tests:test
 script:
-  - make $TARGET
+  - $TARGET
