@@ -7,7 +7,7 @@ jdk: oraclejdk8
 
 env:
   matrix:
-    - TARGET=gradle build
-    - TARGET=gradle tests:test
+    - TARGET=build
+    - TARGET=tests:test
 script:
-  - $TARGET
+  - gradle $TARGET
