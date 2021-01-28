@@ -7,3 +7,4 @@ jdk: oraclejdk8
 
 script:
   - gradle build
+  - gradle clean tests:test

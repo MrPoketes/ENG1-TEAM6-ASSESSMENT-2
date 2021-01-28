@@ -16,21 +16,19 @@
 
 package de.tomgrill.gdxtesting.examples;
 
-import static org.junit.Assert.assertTrue;
-
+import com.badlogic.gdx.Gdx;
+import de.tomgrill.gdxtesting.GdxTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.badlogic.gdx.Gdx;
-
-import de.tomgrill.gdxtesting.GdxTestRunner;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(GdxTestRunner.class)
 public class AssetExistsExampleTest {
 
-	@Test
-	public void badlogicLogoFileExists() {
-		assertTrue("This test will only pass when the badlogic.jpg file coming with a new project setup has not been deleted.",
-				Gdx.files.internal("../android/assets/badlogic.jpg").exists());
-	}
+    @Test
+    public void badlogicLogoFileExists() {
+        assertTrue("This test will only pass when the boat1.png file coming with a new project setup has not been deleted.",
+                Gdx.files.internal("../core/assets/boat1.png").exists());
+    }
 }
