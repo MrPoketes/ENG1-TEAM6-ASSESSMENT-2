@@ -59,33 +59,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
-        // Initialise the world and the map arrays
-        world = new World[3];
-        map = new Map[3];
-        for (int i = 0; i < 3; i++) {
-            // Initialize the physics game World
-            world[i] = new World(new Vector2(0f, 0f), true);
-
-            // Initialize the map
-            map[i] = new Map("Map1/Map1.tmx", w, GameData.gameDifficulty);
-
-            // Calculate the ratio between pixels, meters and tiles
-            GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
-            GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
-
-            // Create the collision with the land
-            map[i].createMapCollisions("CollisionLayerLeft", world[i]);
-            map[i].createMapCollisions("CollisionLayerRight", world[i]);
-
-            // Create the lanes, and the obstacles in the physics game world
-            map[i].createLanes(world[i]);
-
-            // Create the finish line
-            map[i].createFinishLine("finishLine.png");
-
-            // Create a new collision handler for the world
-            createContactListener(world[i]);
-        }
+        // Removed code
 
         // Initialize the camera
         camera = new OrthographicCamera();
@@ -294,6 +268,11 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     }
 
     // Added code start
+
+    /**
+     * Method to create a new map according to the difficulty.
+     * Gets called once the user has selected a game difficulty
+     */
     public void updateMapDifficulty() {
         world = new World[3];
         map = new Map[3];

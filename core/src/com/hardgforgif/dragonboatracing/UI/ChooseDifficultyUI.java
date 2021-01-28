@@ -95,7 +95,6 @@ public class ChooseDifficultyUI extends UI {
                         clickPos.y > EASY_BUTTON_Y
         ) {
             GameData.gameDifficulty = "easy";
-            GameData.difficultyChanged = true;
         }
         x = 2 * screenWidth / 4 - MEDIUM_BUTTON_WIDTH / 2;
         if (
@@ -104,7 +103,6 @@ public class ChooseDifficultyUI extends UI {
                         clickPos.y > MEDIUM_BUTTON_Y
         ) {
             GameData.gameDifficulty = "medium";
-            GameData.difficultyChanged = true;
         }
         x = 3 * screenWidth / 4 - HARD_BUTTON_WIDTH / 2;
         if (
@@ -113,7 +111,6 @@ public class ChooseDifficultyUI extends UI {
                         clickPos.y > HARD_BUTTON_Y
         ) {
             GameData.gameDifficulty = "hard";
-            GameData.difficultyChanged = true;
         }
         x = screenWidth / 2 - PLAY_BUTTON_WIDTH / 2;
         if (
@@ -121,6 +118,7 @@ public class ChooseDifficultyUI extends UI {
                         clickPos.y < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT &&
                         clickPos.y > PLAY_BUTTON_Y
         ) {
+            GameData.difficultyChanged = true;
             GameData.chooseDifficultyState = false;
             GameData.choosingBoatState = true;
             GameData.currentUI = new ChoosingUI();
