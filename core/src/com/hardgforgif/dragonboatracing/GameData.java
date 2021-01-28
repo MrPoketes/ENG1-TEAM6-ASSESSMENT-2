@@ -14,7 +14,11 @@ public class GameData {
     public final static float METERS_TO_PIXELS = 100f;
     // Create the game state variables
     public static boolean mainMenuState = true;
+    // Added code start
     public static boolean optionsState = false;
+    public static boolean infoState = false;
+    public static boolean chooseDifficultyState = false;
+    //Added code end
     public static boolean choosingBoatState = false;
     public static boolean gamePlayState = false;
     public static boolean showResultsState = false;
@@ -57,5 +61,6 @@ public class GameData {
     public static Stack<Integer> reduceAIAccelerationList = new Stack();
     // Sets the game difficulty. Available types - easy, medium, hard
     public static String gameDifficulty = "easy";
+    public static boolean difficultyChanged = false;
     // Added code end
 }

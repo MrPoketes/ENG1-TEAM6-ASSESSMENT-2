@@ -22,19 +22,23 @@ public class MenuUI extends UI {
     private static final int EXIT_BUTTON_HEIGHT = 120;
     private static final int EXIT_BUTTON_Y = 100;
 
-    private static final int OPTIONS_BUTTON_WIDTH = 300;
+    private static final int OPTIONS_BUTTON_WIDTH = 200;
     private static final int OPTIONS_BUTTON_HEIGHT = 120;
     private static final int OPTIONS_BUTTON_Y = 10;
+    // Added code start
+    private static final int INFO_BUTTON_WIDTH = 200;
+    private static final int INFO_BUTTON_HEIGHT = 120;
+    private static final int INFO_BUTTON_Y = 10;
 
-
-    Texture playButtonActive;
-    Texture playButtonInactive;
-    Texture exitButtonActive;
-    Texture exitButtonInactive;
     Texture infoButtonActive;
     Texture infoButtonInactive;
     Texture optionsButtonActive;
     Texture optionsButtonInactive;
+    // Added code end
+    Texture playButtonActive;
+    Texture playButtonInactive;
+    Texture exitButtonActive;
+    Texture exitButtonInactive;
     Texture logo;
 
     ScrollingBackground scrollingBackground = new ScrollingBackground();
@@ -49,8 +53,12 @@ public class MenuUI extends UI {
         playButtonInactive = new Texture("PlayUnselected.png");
         exitButtonActive = new Texture("ExitSelected.png");
         exitButtonInactive = new Texture("ExitUnselected.png");
-        optionsButtonActive = new Texture("PlaySelected.png");
-        optionsButtonInactive = new Texture("PlayUnselected.png");
+        // Added code start
+        optionsButtonActive = new Texture("SettingsSelected.png");
+        optionsButtonInactive = new Texture("SettingsUnselected.png");
+        infoButtonActive = new Texture("InfoSelected.png");
+        infoButtonInactive = new Texture("InfoUnselected.png");
+        // Added code end
         logo = new Texture("Title.png");
 
     }
@@ -85,8 +93,8 @@ public class MenuUI extends UI {
         } else {
             batch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
         }
-
-        x = screenWidth / 2 - OPTIONS_BUTTON_WIDTH / 2;
+        // Added code start
+        x = 7 * screenWidth / 8 - OPTIONS_BUTTON_WIDTH / 2;
         if (
                 mousePos.x < x + OPTIONS_BUTTON_WIDTH && mousePos.x > x &&
                         mousePos.y < OPTIONS_BUTTON_Y + OPTIONS_BUTTON_HEIGHT &&
@@ -94,6 +102,14 @@ public class MenuUI extends UI {
             batch.draw(optionsButtonActive, x, OPTIONS_BUTTON_Y, OPTIONS_BUTTON_WIDTH, OPTIONS_BUTTON_HEIGHT);
         } else {
             batch.draw(optionsButtonInactive, x, OPTIONS_BUTTON_Y, OPTIONS_BUTTON_WIDTH, OPTIONS_BUTTON_HEIGHT);
+        }
+        x = screenWidth / 8 - INFO_BUTTON_WIDTH / 2;
+        if (mousePos.x < x + INFO_BUTTON_WIDTH && mousePos.x > x &&
+                mousePos.y < INFO_BUTTON_Y + INFO_BUTTON_HEIGHT &&
+                mousePos.y > INFO_BUTTON_Y) {
+            batch.draw(infoButtonActive, x, INFO_BUTTON_Y, INFO_BUTTON_WIDTH, INFO_BUTTON_HEIGHT);
+        } else {
+            batch.draw(infoButtonInactive, x, INFO_BUTTON_Y, INFO_BUTTON_WIDTH, INFO_BUTTON_HEIGHT);
         }
         batch.end();
 
@@ -117,8 +133,8 @@ public class MenuUI extends UI {
         ) {
             // Switch to the choosing state
             GameData.mainMenuState = false;
-            GameData.choosingBoatState = true;
-            GameData.currentUI = new ChoosingUI();
+            GameData.chooseDifficultyState = true;
+            GameData.currentUI = new ChooseDifficultyUI();
         }
 
         // If the exit button is clicked, close the game
@@ -129,13 +145,22 @@ public class MenuUI extends UI {
         ) {
             Gdx.app.exit();
         }
-        x = screenWidth / 2 - OPTIONS_BUTTON_WIDTH / 2;
+        // Added code start
+        x = 7 * screenWidth / 8 - OPTIONS_BUTTON_WIDTH / 2;
         if (clickPos.x < x + OPTIONS_BUTTON_WIDTH && clickPos.x > x &&
                 clickPos.y < OPTIONS_BUTTON_Y + OPTIONS_BUTTON_HEIGHT &&
                 clickPos.y > OPTIONS_BUTTON_Y) {
             GameData.mainMenuState = false;
             GameData.optionsState = true;
             GameData.currentUI = new OptionsUI();
+        }
+        x = screenWidth / 8 - INFO_BUTTON_WIDTH / 2;
+        if (clickPos.x < x + INFO_BUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < INFO_BUTTON_Y + INFO_BUTTON_HEIGHT &&
+                clickPos.y > INFO_BUTTON_Y) {
+            GameData.mainMenuState = false;
+            GameData.infoState = true;
+            GameData.currentUI = new InfoUI();
         }
 
     }
