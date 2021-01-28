@@ -4,3 +4,6 @@ install: skip
 os: linux
 dist: trusty
 jdk: oraclejdk8
+
+script:
+  - gradle check
