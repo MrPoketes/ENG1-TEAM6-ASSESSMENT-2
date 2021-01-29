@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.core.Player;
 
-import javax.xml.soap.Text;
+
 
 public class InfoUI extends UI {
 
