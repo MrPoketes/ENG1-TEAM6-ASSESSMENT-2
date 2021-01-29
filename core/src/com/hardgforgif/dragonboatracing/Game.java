@@ -674,7 +674,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             if (keycode == Input.Keys.RIGHT)
                 pressedKeys[3] = true;
             return true;
-            // added code Start
+            // Added code start
         } else {
             if (keycode == Input.Keys.W)
                 pressedKeys[0] = true;
@@ -685,7 +685,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             if (keycode == Input.Keys.D)
                 pressedKeys[3] = true;
             return true;
-            // added code End
+            // Added code end
         }
 
     }
@@ -702,7 +702,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             if (keycode == Input.Keys.RIGHT)
                 pressedKeys[3] = false;
             return true;
-            //added code Start
+            //Added code start
         } else {
             if (keycode == Input.Keys.W)
                 pressedKeys[0] = false;
@@ -713,7 +713,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             if (keycode == Input.Keys.D)
                 pressedKeys[3] = false;
             return true;
-            //added code End
+            //Added code end
         }
     }
 
