@@ -700,31 +700,56 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.W)
-            pressedKeys[0] = true;
-        if (keycode == Input.Keys.A)
-            pressedKeys[1] = true;
-        if (keycode == Input.Keys.S)
-            pressedKeys[2] = true;
-        if (keycode == Input.Keys.D)
-            pressedKeys[3] = true;
-        if (keycode == Input.Keys.ESCAPE) {
-            pauseClicked = !pauseClicked;
+        if (GameData.switchControls) {
+            if (keycode == Input.Keys.UP)
+                pressedKeys[0] = true;
+            if (keycode == Input.Keys.LEFT)
+                pressedKeys[1] = true;
+            if (keycode == Input.Keys.DOWN)
+                pressedKeys[2] = true;
+            if (keycode == Input.Keys.RIGHT)
+                pressedKeys[3] = true;
+            return true;
+            // Added code start
+        } else {
+            if (keycode == Input.Keys.W)
+                pressedKeys[0] = true;
+            if (keycode == Input.Keys.A)
+                pressedKeys[1] = true;
+            if (keycode == Input.Keys.S)
+                pressedKeys[2] = true;
+            if (keycode == Input.Keys.D)
+                pressedKeys[3] = true;
+            return true;
+            // Added code end
         }
-        return true;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        if (keycode == Input.Keys.W)
-            pressedKeys[0] = false;
-        if (keycode == Input.Keys.A)
-            pressedKeys[1] = false;
-        if (keycode == Input.Keys.S)
-            pressedKeys[2] = false;
-        if (keycode == Input.Keys.D)
-            pressedKeys[3] = false;
-        return true;
+        if (GameData.switchControls) {
+            if (keycode == Input.Keys.UP)
+                pressedKeys[0] = false;
+            if (keycode == Input.Keys.LEFT)
+                pressedKeys[1] = false;
+            if (keycode == Input.Keys.DOWN)
+                pressedKeys[2] = false;
+            if (keycode == Input.Keys.RIGHT)
+                pressedKeys[3] = false;
+            return true;
+            //Added code start
+        } else {
+            if (keycode == Input.Keys.W)
+                pressedKeys[0] = false;
+            if (keycode == Input.Keys.A)
+                pressedKeys[1] = false;
+            if (keycode == Input.Keys.S)
+                pressedKeys[2] = false;
+            if (keycode == Input.Keys.D)
+                pressedKeys[3] = false;
+            return true;
+            //Added code end
+        }
     }
 
     @Override
@@ -765,7 +790,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     public void resize(int width, int height) {
         batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     }
-    
+
     // Added code start
 
     /**

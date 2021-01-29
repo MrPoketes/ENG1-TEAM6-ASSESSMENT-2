@@ -62,5 +62,6 @@ public class GameData {
     // Sets the game difficulty. Available types - easy, medium, hard
     public static String gameDifficulty = "easy";
     public static boolean difficultyChanged = false;
+    public static boolean switchControls = false;
     // Added code end
 }
