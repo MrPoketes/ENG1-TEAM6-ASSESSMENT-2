@@ -765,6 +765,8 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     public void resize(int width, int height) {
         batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     }
+    
+    // Added code start
 
     /**
      * @param x background button x coordinate
@@ -789,7 +791,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
-    // Added code start
     private enum State {
         Paused, Running
     }
