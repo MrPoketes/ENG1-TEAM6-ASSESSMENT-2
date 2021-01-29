@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -22,6 +23,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Game extends ApplicationAdapter implements InputProcessor {
+    // Added code start
+    private static final int PAUSED_BACKGROUND_WIDTH = 800;
+    private static final int PAUSED_BACKGROUND_HEIGHT = 500;
+    private static final int PLAY_BUTTON_WIDTH = 200;
+    private static final int PLAY_BUTTON_HEIGHT = 150;
+    private static final int SAVE_BUTTON_WIDTH = 200;
+    private static final int SAVE_BUTTON_HEIGHT = 150;
+
+    Texture pausedBackground;
+    Texture playButton;
+    Texture saveButton;
+    // Added code end
+
     private Player player;
     private AI[] opponents = new AI[3];
     private Map[] map;
@@ -29,15 +43,11 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     private Batch UIbatch;
     private OrthographicCamera camera;
     private World[] world;
-
-
     private Vector2 mousePosition = new Vector2();
     private Vector2 clickPosition = new Vector2();
     private boolean[] pressedKeys = new boolean[4]; // W, A, S, D buttons status
-
     private ArrayList<Body> toBeRemovedBodies = new ArrayList<>();
     private ArrayList<Body> toUpdateHealth = new ArrayList<>();
-
     // Added code start
     // ArrayLists for powerUps
     private ArrayList<Body> toHealBody = new ArrayList<>();
@@ -45,8 +55,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     private ArrayList<Body> toIncreaseSpeed = new ArrayList<>();
     private ArrayList<Body> toReduceTime = new ArrayList<>();
     private ArrayList<Body> toIncreaseAcceleration = new ArrayList<>();
-
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private boolean pauseClicked = false;
+    private State state;
     // Added code end
 
     @Override
@@ -67,6 +78,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
         // Set the app's input processor
         Gdx.input.setInputProcessor(this);
+
+        // Added code start
+        state = State.Running;
+        pausedBackground = new Texture("Background.png");
+        playButton = new Texture("PlaySelected.png");
+        saveButton = new Texture("PlayUnselected.png");
+        // Added code end
 
 
     }
@@ -245,7 +263,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
-
     /**
      * This method marks all the boats that haven't finished the race as dnfs
      */
@@ -266,8 +283,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 GameData.results.add(new Float[]{Float.valueOf(i + 1), Float.MAX_VALUE});
         }
     }
-
-    // Added code start
 
     /**
      * Method to create a new map according to the difficulty.
@@ -303,7 +318,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
-    // Added code end
     @Override
     public void render() {
         if (GameData.difficultyChanged) {
@@ -325,170 +339,195 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
         // Otherwise, if we are in the game play state
         else if (GameData.gamePlayState) {
-            // If it's the first iteration in this state, the boats need to be created at their starting positions
-            if (player == null) {
-                // Create the player boat
-                int playerBoatType = GameData.boatTypes[0];
-                player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
-                        GameData.boatsStats[playerBoatType][2], GameData.boatsStats[playerBoatType][3],
-                        playerBoatType, map[GameData.currentLeg].lanes[0]);
-                player.createBoatBody(world[GameData.currentLeg], GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
-                // Create the AI boats
-                for (int i = 1; i <= 3; i++) {
-                    int AIBoatType = GameData.boatTypes[i];
-                    opponents[i - 1] = new AI(GameData.boatsStats[AIBoatType][0], GameData.boatsStats[AIBoatType][1],
-                            GameData.boatsStats[AIBoatType][2], GameData.boatsStats[AIBoatType][3],
-                            AIBoatType, map[GameData.currentLeg].lanes[i]);
-                    opponents[i - 1].createBoatBody(world[GameData.currentLeg], GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
-                }
-            }
-
-            // Iterate through the bodies that need to be removed from the world after a collision
-            for (Body body : toBeRemovedBodies) {
-                // Find the obstacle that has this body and mark it as null
-                // so it's sprite doesn't get rendered in future frames
-                for (Lane lane : map[GameData.currentLeg].lanes) {
-                    for (Obstacle obstacle : lane.obstacles) {
-                        if (obstacle.obstacleBody == body) {
-                            obstacle.obstacleBody = null;
-                        }
+            // Added code start
+            switch (state) {
+                case Paused:
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                        state = State.Running;
                     }
-                    // Added code start
-                    for (PowerUp powerup : lane.powerUps) {
-                        if (powerup.powerupBody == body) {
-                            powerup.powerupBody = null;
-                        }
+                    Gdx.gl.glClearColor(0, 0, 255, 0);
+                    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                    float x = camera.position.x - PAUSED_BACKGROUND_WIDTH / 2;
+                    float y = camera.position.y - PAUSED_BACKGROUND_HEIGHT / 2;
+                    batch.begin();
+                    batch.draw(pausedBackground, x, y, PAUSED_BACKGROUND_WIDTH, PAUSED_BACKGROUND_HEIGHT);
+                    batch.draw(playButton, x * 2.2f, y + 300, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+                    batch.draw(saveButton, x * 2.2f, y + 150, SAVE_BUTTON_WIDTH, SAVE_BUTTON_HEIGHT);
+                    batch.end();
+                    handlePausedInput(x, y);
+                    break;
+
+                case Running:
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                        state = State.Paused;
                     }
                     // Added code end
-                }
 
-
-                // Remove the body from the world to avoid other collisions with it
-                world[GameData.currentLeg].destroyBody(body);
-            }
-
-            // Iterate through the bodies marked to be damaged after a collision
-            for (Body body : toUpdateHealth) {
-                // if it's the player body
-                if (player.boatBody == body && !player.hasFinished()) {
-                    // Reduce the health and the speed
-                    player.robustness -= 10f;
-                    player.current_speed -= 30f;
-
-                    // If all the health is lost
-                    if (player.robustness <= 0 && GameData.results.size() < 4) {
-                        // Remove the body from the world, but keep it's sprite in place
-                        world[GameData.currentLeg].destroyBody(player.boatBody);
-
-                        // Add a DNF result
-                        GameData.results.add(new Float[]{0f, Float.MAX_VALUE});
-
-                        // Transition to the show result screen
-                        GameData.showResultsState = true;
-                        GameData.currentUI = new ResultsUI();
+                    // If it's the first iteration in this state, the boats need to be created at their starting positions
+                    if (player == null) {
+                        // Create the player boat
+                        int playerBoatType = GameData.boatTypes[0];
+                        player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
+                                GameData.boatsStats[playerBoatType][2], GameData.boatsStats[playerBoatType][3],
+                                playerBoatType, map[GameData.currentLeg].lanes[0]);
+                        player.createBoatBody(world[GameData.currentLeg], GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
+                        // Create the AI boats
+                        for (int i = 1; i <= 3; i++) {
+                            int AIBoatType = GameData.boatTypes[i];
+                            opponents[i - 1] = new AI(GameData.boatsStats[AIBoatType][0], GameData.boatsStats[AIBoatType][1],
+                                    GameData.boatsStats[AIBoatType][2], GameData.boatsStats[AIBoatType][3],
+                                    AIBoatType, map[GameData.currentLeg].lanes[i]);
+                            opponents[i - 1].createBoatBody(world[GameData.currentLeg], GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
+                        }
                     }
-                }
-                // Otherwise, one of the AI has to be updated similarly
-                else {
-                    for (int i = 0; i < 3; i++) {
-                        if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
 
-                            opponents[i].robustness -= 10f;
-                            opponents[i].current_speed -= 30f;
+                    // Iterate through the bodies that need to be removed from the world after a collision
+                    for (Body body : toBeRemovedBodies) {
+                        // Find the obstacle that has this body and mark it as null
+                        // so it's sprite doesn't get rendered in future frames
+                        for (Lane lane : map[GameData.currentLeg].lanes) {
+                            for (Obstacle obstacle : lane.obstacles) {
+                                if (obstacle.obstacleBody == body) {
+                                    obstacle.obstacleBody = null;
+                                }
+                            }
+                            // Added code start
+                            for (PowerUp powerup : lane.powerUps) {
+                                if (powerup.powerupBody == body) {
+                                    powerup.powerupBody = null;
+                                }
+                            }
+                            // Added code end
+                        }
 
-                            if (opponents[i].robustness < 0 && GameData.results.size() < 4) {
-                                world[GameData.currentLeg].destroyBody(opponents[i].boatBody);
-                                GameData.results.add(new Float[]{Float.valueOf(i + 1), Float.MAX_VALUE});
+
+                        // Remove the body from the world to avoid other collisions with it
+                        world[GameData.currentLeg].destroyBody(body);
+                    }
+
+                    // Iterate through the bodies marked to be damaged after a collision
+                    for (Body body : toUpdateHealth) {
+                        // if it's the player body
+                        if (player.boatBody == body && !player.hasFinished()) {
+                            // Reduce the health and the speed
+                            player.robustness -= 10f;
+                            player.current_speed -= 30f;
+
+                            // If all the health is lost
+                            if (player.robustness <= 0 && GameData.results.size() < 4) {
+                                // Remove the body from the world, but keep it's sprite in place
+                                world[GameData.currentLeg].destroyBody(player.boatBody);
+
+                                // Add a DNF result
+                                GameData.results.add(new Float[]{0f, Float.MAX_VALUE});
+
+                                // Transition to the show result screen
+                                GameData.showResultsState = true;
+                                GameData.currentUI = new ResultsUI();
+                            }
+                        }
+                        // Otherwise, one of the AI has to be updated similarly
+                        else {
+                            for (int i = 0; i < 3; i++) {
+                                if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
+
+                                    opponents[i].robustness -= 10f;
+                                    opponents[i].current_speed -= 30f;
+
+                                    if (opponents[i].robustness < 0 && GameData.results.size() < 4) {
+                                        world[GameData.currentLeg].destroyBody(opponents[i].boatBody);
+                                        GameData.results.add(new Float[]{Float.valueOf(i + 1), Float.MAX_VALUE});
+                                    }
+                                }
+
                             }
                         }
 
                     }
-                }
+                    // Added code start
+                    handlePowerUp();
+                    // Added code end
 
-            }
-            // Added code start
-            handlePowerUp();
-            // Added code end
+                    toBeRemovedBodies.clear();
+                    toUpdateHealth.clear();
 
-            toBeRemovedBodies.clear();
-            toUpdateHealth.clear();
+                    // Added code start
+                    toHealBody.clear();
+                    toIncreaseAcceleration.clear();
+                    toRestoreStamina.clear();
+                    toReduceTime.clear();
+                    toIncreaseSpeed.clear();
+                    // Added code end
 
-            // Added code start
-            toHealBody.clear();
-            toIncreaseAcceleration.clear();
-            toRestoreStamina.clear();
-            toReduceTime.clear();
-            toIncreaseSpeed.clear();
-            // Added code end
+                    // Advance the game world physics
+                    world[GameData.currentLeg].step(1f / 60f, 6, 2);
+                    // Update the timer
+                    GameData.currentTimer += Gdx.graphics.getDeltaTime();
 
-            // Advance the game world physics
-            world[GameData.currentLeg].step(1f / 60f, 6, 2);
-            // Update the timer
-            GameData.currentTimer += Gdx.graphics.getDeltaTime();
+                    // Update the player's and the AI's movement
+                    player.updatePlayer(pressedKeys, Gdx.graphics.getDeltaTime());
+                    for (AI opponent : opponents)
+                        opponent.updateAI(Gdx.graphics.getDeltaTime());
 
-            // Update the player's and the AI's movement
-            player.updatePlayer(pressedKeys, Gdx.graphics.getDeltaTime());
-            for (AI opponent : opponents)
-                opponent.updateAI(Gdx.graphics.getDeltaTime());
+                    // Set the camera as the batches projection matrix
+                    batch.setProjectionMatrix(camera.combined);
 
-            // Set the camera as the batches projection matrix
-            batch.setProjectionMatrix(camera.combined);
+                    // Render the map
+                    map[GameData.currentLeg].renderMap(camera, batch);
 
-            // Render the map
-            map[GameData.currentLeg].renderMap(camera, batch);
+                    // Render the player and the AIs
+                    player.drawBoat(batch);
+                    for (AI opponent : opponents)
+                        opponent.drawBoat(batch);
 
-            // Render the player and the AIs
-            player.drawBoat(batch);
-            for (AI opponent : opponents)
-                opponent.drawBoat(batch);
-
-            // Render the objects that weren't destroyed yet
-            for (Lane lane : map[GameData.currentLeg].lanes) {
-                for (Obstacle obstacle : lane.obstacles) {
-                    if (obstacle.obstacleBody != null)
-                        obstacle.drawObstacle(batch);
-                }
-                // Added code start
-                for (PowerUp powerup : lane.powerUps) {
-                    if (powerup.powerupBody != null) {
-                        powerup.drawPowerUp(batch);
+                    // Render the objects that weren't destroyed yet
+                    for (Lane lane : map[GameData.currentLeg].lanes) {
+                        for (Obstacle obstacle : lane.obstacles) {
+                            if (obstacle.obstacleBody != null)
+                                obstacle.drawObstacle(batch);
+                        }
+                        // Added code start
+                        for (PowerUp powerup : lane.powerUps) {
+                            if (powerup.powerupBody != null) {
+                                powerup.drawPowerUp(batch);
+                            }
+                        }
+                        // Added code end
                     }
-                }
-                // Added code end
-            }
 
-            // Update the camera at the player's position
-            updateCamera(player);
+                    // Update the camera at the player's position
+                    updateCamera(player);
 
-            updatePenalties();
+                    updatePenalties();
 
-            // Update the standings of each boat
-            updateStandings();
+                    // Update the standings of each boat
+                    updateStandings();
 
-            // If it's been 15 seconds since the winner completed the race, dnf all boats who haven't finished yet
-            // Then transition to the result state
-            if (GameData.results.size() > 0 && GameData.results.size() < 4 &&
-                    GameData.currentTimer > GameData.results.get(0)[1] + 15f) {
-                dnfRemainingBoats();
-                GameData.showResultsState = true;
-                GameData.currentUI = new ResultsUI();
-            }
-            // Otherwise keep checking for new results
-            else {
-                checkForResults();
-            }
+                    // If it's been 15 seconds since the winner completed the race, dnf all boats who haven't finished yet
+                    // Then transition to the result state
+                    if (GameData.results.size() > 0 && GameData.results.size() < 4 &&
+                            GameData.currentTimer > GameData.results.get(0)[1] + 15f) {
+                        dnfRemainingBoats();
+                        GameData.showResultsState = true;
+                        GameData.currentUI = new ResultsUI();
+                    }
+                    // Otherwise keep checking for new results
+                    else {
+                        checkForResults();
+                    }
 
 
-            // Choose which UI to display based on the current state
-            if (!GameData.showResultsState)
-                GameData.currentUI.drawPlayerUI(UIbatch, player);
-            else {
-                GameData.currentUI.drawUI(UIbatch, mousePosition, Gdx.graphics.getWidth(), Gdx.graphics.getDeltaTime());
-                GameData.currentUI.getInput(Gdx.graphics.getWidth(), clickPosition);
+                    // Choose which UI to display based on the current state
+                    if (!GameData.showResultsState)
+                        GameData.currentUI.drawPlayerUI(UIbatch, player);
+                    else {
+                        GameData.currentUI.drawUI(UIbatch, mousePosition, Gdx.graphics.getWidth(), Gdx.graphics.getDeltaTime());
+                        GameData.currentUI.getInput(Gdx.graphics.getWidth(), clickPosition);
+                    }
+                    break;
             }
 
         }
-
         // Otherwise we need need to reset elements of the game to prepare for the next race
         else if (GameData.resetGameState) {
             player = null;
@@ -549,8 +588,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         if (clickPosition.x != 0f && clickPosition.y != 0f)
             clickPosition.set(0f, 0f);
     }
-
-    // Added code start
 
     /**
      * Applies picked up powerUp boosts to either the player or AI
@@ -656,7 +693,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             }
         }
     }
-    // Added code end
 
     public void dispose() {
         world[GameData.currentLeg].dispose();
@@ -672,6 +708,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             pressedKeys[2] = true;
         if (keycode == Input.Keys.D)
             pressedKeys[3] = true;
+        if (keycode == Input.Keys.ESCAPE) {
+            pauseClicked = !pauseClicked;
+        }
         return true;
     }
 
@@ -726,4 +765,33 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     public void resize(int width, int height) {
         batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     }
+
+    /**
+     * @param x background button x coordinate
+     * @param y background button y coordinate
+     */
+    public void handlePausedInput(float x, float y) {
+        float actualX = x * 2.2f;
+        if (
+                clickPosition.x < actualX + PLAY_BUTTON_HEIGHT && clickPosition.x > actualX &&
+                        clickPosition.y < y + 300 + PLAY_BUTTON_HEIGHT &&
+                        clickPosition.y > y + 300
+        ) {
+            state = State.Running;
+        } else if (
+                clickPosition.x < actualX + SAVE_BUTTON_HEIGHT && clickPosition.x > actualX &&
+                        clickPosition.y < y + 150 + SAVE_BUTTON_HEIGHT &&
+                        clickPosition.y > y + 150
+        ) {
+            GameData.gamePlayState = false;
+            GameData.mainMenuState = true;
+            GameData.currentUI = new MenuUI();
+        }
+    }
+
+    // Added code start
+    private enum State {
+        Paused, Running
+    }
+    // Added code end
 }

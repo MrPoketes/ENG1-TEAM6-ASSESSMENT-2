@@ -52,7 +52,7 @@ public class GameData {
 
     // Added code start
     // Music volume range [0,1]
-    public static float musicVolume = 0.5f;
+    public static float musicVolume = 0f;
     // Sets whether the screen should be in fullscreen or windowed
     public static boolean fullscreen = true;
     // Variable for reducing time, if boat picked up time reduction powerUp
