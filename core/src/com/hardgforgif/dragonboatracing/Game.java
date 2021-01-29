@@ -811,8 +811,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                         clickPosition.y > y + 150
         ) {
             GameData.gamePlayState = false;
-            GameData.mainMenuState = true;
-            GameData.currentUI = new MenuUI();
+            GameData.resetGameState = true;
         }
     }
 
