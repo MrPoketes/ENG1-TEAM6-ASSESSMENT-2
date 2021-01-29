@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.core.Player;
 
+
 public class OptionsUI extends UI {
 
     private static final int PLUS_BUTTON_WIDTH = 50;
@@ -32,6 +33,15 @@ public class OptionsUI extends UI {
     private static final int FULLSCREEN_BUTTON_HEIGHT = 50;
     private static final int FULLSCREEN_BUTTON_Y = 450;
 
+    private static final int WASDBUTTON_WIDTH = 100;
+    private static final int WASDBUTTON_HEIGHT = 50;
+    private static final int WASDBUTTON_Y = 350;
+
+    private static final int ARROWKEYSBUTTON_WIDTH = 100;
+    private static final int ARROWKEYSBUTTON_HEIGHT =50;
+    private static final int ARROWKEYSBUTTON_Y = 350;
+
+
     Texture plusButton;
     Texture minusButton;
 
@@ -41,11 +51,16 @@ public class OptionsUI extends UI {
     Texture windowedButton;
     Texture fullscreenButton;
 
+    Texture WASDButton;
+    Texture ArrowKeysButton;
+
     ScrollingBackground scrollingBackground = new ScrollingBackground();
 
     // Texts
     private BitmapFont volume;
     private BitmapFont volumeLabel;
+    private BitmapFont WASD;
+    private BitmapFont Arrow;
 
     public OptionsUI() {
         scrollingBackground.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -60,6 +75,9 @@ public class OptionsUI extends UI {
         windowedButton = new Texture("testPlusButton.png");
         fullscreenButton = new Texture("testMinusButton.png");
 
+        WASDButton = new Texture("Background.png");
+        ArrowKeysButton = new Texture("Background.png");
+
         // Volume initializers
         volume = new BitmapFont();
         volume.getData().setScale(1.4f);
@@ -67,6 +85,12 @@ public class OptionsUI extends UI {
         volumeLabel = new BitmapFont();
         volumeLabel.getData().setScale(2f);
         volumeLabel.setColor(Color.BLACK);
+
+        //WASD and Arrow Keys initializers
+        WASD = new BitmapFont();
+        WASD.setColor(Color.BLACK);
+        Arrow = new BitmapFont();
+        Arrow.setColor(Color.BLACK);
 
     }
 
@@ -91,6 +115,16 @@ public class OptionsUI extends UI {
         batch.draw(windowedButton, x, WINDOWED_BUTTON_Y, WINDOWED_BUTTON_WIDTH, WINDOWED_BUTTON_HEIGHT);
 
         batch.draw(backButton, 100f, BACK_BUTTON_Y, BACK_BUTTON_WIDTH, BACK_BUTTON_HEIGHT);
+
+        //drawing WASD and Arrow key buttons
+        x = 2 * screenWidth / 5 - WASDBUTTON_WIDTH / 2;
+        batch.draw(WASDButton, x, WASDBUTTON_Y, WASDBUTTON_WIDTH, WASDBUTTON_HEIGHT);
+        WASD.draw(batch, "WASD", x + 20, WASDBUTTON_Y + 30 );
+
+        x = 3 * screenWidth / 5 - ARROWKEYSBUTTON_WIDTH / 2;
+        batch.draw(ArrowKeysButton, x, ARROWKEYSBUTTON_Y, ARROWKEYSBUTTON_WIDTH, ARROWKEYSBUTTON_HEIGHT);
+        Arrow.draw(batch, "Arrow", x + 20, ARROWKEYSBUTTON_Y + 30);
+
 
         batch.end();
 
@@ -158,6 +192,23 @@ public class OptionsUI extends UI {
             GameData.fullscreen = false;
             Gdx.graphics.setWindowedMode(1280, 720);
         }
+        x = 2 * screenWidth / 5 - WASDBUTTON_HEIGHT / 2;
+        if (clickPos.x < x + WASDBUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < WASDBUTTON_Y + WASDBUTTON_HEIGHT &&
+                clickPos.y > WASDBUTTON_Y) {
+            WASD.setColor(Color.WHITE);
+            Arrow.setColor(Color.BLACK);
+            GameData.switchControls= false;
+        }
+        x = 3 * screenWidth / 5 - ARROWKEYSBUTTON_WIDTH / 2;
+        if (clickPos.x < x + ARROWKEYSBUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < ARROWKEYSBUTTON_Y + ARROWKEYSBUTTON_HEIGHT &&
+                clickPos.y > ARROWKEYSBUTTON_Y) {
+            WASD.setColor(Color.BLACK);
+            Arrow.setColor(Color.WHITE);
+            GameData.switchControls = true;
+        }
+
     }
 }
 // Added code end
