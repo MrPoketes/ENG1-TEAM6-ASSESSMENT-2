@@ -83,7 +83,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         state = State.Running;
         pausedBackground = new Texture("Background.png");
         playButton = new Texture("PlaySelected.png");
-        saveButton = new Texture("PlayUnselected.png");
+        saveButton = new Texture("SaveSelected.png");
         // Added code end
 
 
