@@ -1,5 +1,7 @@
 package com.hardgforgif.dragonboatracing.core;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.hardgforgif.dragonboatracing.GameData;
@@ -19,6 +21,17 @@ public class AI extends Boat {
         this.maneuverability *= GameData.difficulty[GameData.currentLeg];
         this.speed *= GameData.difficulty[GameData.currentLeg];
         this.acceleration *= GameData.difficulty[GameData.currentLeg];
+    }
+
+    public AI(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane, float currentSpeed, float stamina) {
+        super(robustness, speed, acceleration, maneuverability, boatType, lane, currentSpeed, stamina);
+        Preferences prefs = Gdx.app.getPreferences("savedData");
+        int currentLeg = prefs.getInteger("currentLeg");
+        this.robustness *= GameData.difficulty[currentLeg];
+        this.stamina *= GameData.difficulty[currentLeg];
+        this.maneuverability *= GameData.difficulty[currentLeg];
+        this.speed *= GameData.difficulty[currentLeg];
+        this.acceleration *= GameData.difficulty[currentLeg];
     }
 
     /**

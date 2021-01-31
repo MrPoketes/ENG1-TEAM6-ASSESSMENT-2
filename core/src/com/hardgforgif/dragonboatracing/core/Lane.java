@@ -37,6 +37,22 @@ public class Lane {
         this.nrPowerUps = powerUps.length;
     }
 
+    // Added code start
+    public Lane(int mapHeight, MapLayer left, MapLayer right, int nrObstacles, int nrPowerUps, PowerUp[] powerUps, Obstacle[] obstacles) {
+        leftBoundry = new float[mapHeight][2];
+        rightBoundry = new float[mapHeight][2];
+
+        leftLayer = left;
+        rightLayer = right;
+
+        this.obstacles = obstacles;
+        this.powerUps = powerUps;
+
+        this.nrObstacles = nrObstacles;
+        this.nrPowerUps = nrPowerUps;
+    }
+    // Added code end
+
     /**
      * Construct bodies that match the lane separators
      *

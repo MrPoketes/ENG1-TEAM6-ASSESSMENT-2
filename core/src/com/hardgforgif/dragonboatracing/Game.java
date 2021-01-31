@@ -1,9 +1,6 @@
 package com.hardgforgif.dragonboatracing;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -34,8 +31,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     Texture pausedBackground;
     Texture playButton;
     Texture saveButton;
-    // Added code end
 
+    Preferences prefs;
+    // Added code end
     private Player player;
     private AI[] opponents = new AI[3];
     private Map[] map;
@@ -56,7 +54,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     private ArrayList<Body> toReduceTime = new ArrayList<>();
     private ArrayList<Body> toIncreaseAcceleration = new ArrayList<>();
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private boolean pauseClicked = false;
     private State state;
     // Added code end
 
@@ -154,17 +151,14 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
             @Override
             public void endContact(Contact contact) {
-
             }
 
             @Override
             public void preSolve(Contact contact, Manifold manifold) {
-
             }
 
             @Override
             public void postSolve(Contact contact, ContactImpulse contactImpulse) {
-
             }
         });
     }
@@ -291,13 +285,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     public void updateMapDifficulty() {
         world = new World[3];
         map = new Map[3];
-        float w = Gdx.graphics.getWidth();
+        float width = Gdx.graphics.getWidth();
         for (int i = 0; i < 3; i++) {
             // Initialize the physics game World
             world[i] = new World(new Vector2(0f, 0f), true);
 
             // Initialize the map
-            map[i] = new Map("Map1/Map1.tmx", w, GameData.gameDifficulty);
+            map[i] = new Map("Map1/Map1.tmx", width, GameData.gameDifficulty);
 
             // Calculate the ratio between pixels, meters and tiles
             GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
@@ -320,10 +314,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public void render() {
+        // Added code start
         if (GameData.difficultyChanged) {
             updateMapDifficulty();
             GameData.difficultyChanged = false;
         }
+        // Added code end
+
         // Reset the screen
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -365,20 +362,29 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
                     // If it's the first iteration in this state, the boats need to be created at their starting positions
                     if (player == null) {
-                        // Create the player boat
-                        int playerBoatType = GameData.boatTypes[0];
-                        player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
-                                GameData.boatsStats[playerBoatType][2], GameData.boatsStats[playerBoatType][3],
-                                playerBoatType, map[GameData.currentLeg].lanes[0]);
-                        player.createBoatBody(world[GameData.currentLeg], GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
-                        // Create the AI boats
-                        for (int i = 1; i <= 3; i++) {
-                            int AIBoatType = GameData.boatTypes[i];
-                            opponents[i - 1] = new AI(GameData.boatsStats[AIBoatType][0], GameData.boatsStats[AIBoatType][1],
-                                    GameData.boatsStats[AIBoatType][2], GameData.boatsStats[AIBoatType][3],
-                                    AIBoatType, map[GameData.currentLeg].lanes[i]);
-                            opponents[i - 1].createBoatBody(world[GameData.currentLeg], GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
+                        // Added code start
+                        prefs = Gdx.app.getPreferences("savedData");
+                        // Check if there is any saved data
+                        if (GameData.fromSave && prefs.contains("playerRobustness")) {
+                            handleLoadingGame();
+
+                        } else {
+                            // Create the player boat
+                            int playerBoatType = GameData.boatTypes[0];
+                            player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
+                                    GameData.boatsStats[playerBoatType][2], GameData.boatsStats[playerBoatType][3],
+                                    playerBoatType, map[GameData.currentLeg].lanes[0]);
+                            player.createBoatBody(world[GameData.currentLeg], GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
+                            // Create the AI boats
+                            for (int i = 1; i <= 3; i++) {
+                                int AIBoatType = GameData.boatTypes[i];
+                                opponents[i - 1] = new AI(GameData.boatsStats[AIBoatType][0], GameData.boatsStats[AIBoatType][1],
+                                        GameData.boatsStats[AIBoatType][2], GameData.boatsStats[AIBoatType][3],
+                                        AIBoatType, map[GameData.currentLeg].lanes[i]);
+                                opponents[i - 1].createBoatBody(world[GameData.currentLeg], GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
+                            }
                         }
+
                     }
 
                     // Iterate through the bodies that need to be removed from the world after a collision
@@ -483,8 +489,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     // Render the objects that weren't destroyed yet
                     for (Lane lane : map[GameData.currentLeg].lanes) {
                         for (Obstacle obstacle : lane.obstacles) {
-                            if (obstacle.obstacleBody != null)
+                            if (obstacle.obstacleBody != null) {
                                 obstacle.drawObstacle(batch);
+                            }
                         }
                         // Added code start
                         for (PowerUp powerup : lane.powerUps) {
@@ -494,6 +501,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                         }
                         // Added code end
                     }
+
 
                     // Update the camera at the player's position
                     updateCamera(player);
@@ -540,6 +548,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             // If we're coming from the result screen, then we need to advance to the next leg
             if (GameData.showResultsState) {
                 GameData.currentLeg += 1;
+                // If the game is from a save file, we need to save the new leg to the file
+                // And we need to reset the position of all boats.
+                if (GameData.fromSave) {
+                    prefs.putInteger("currentLeg", GameData.currentLeg);
+                    GameData.fromSave = false;
+                }
+
                 GameData.showResultsState = false;
                 GameData.gamePlayState = true;
                 GameData.currentUI = new GamePlayUI();
@@ -577,6 +592,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     createContactListener(world[i]);
                 }
                 GameData.currentLeg = 0;
+                GameData.fromSave = false;
                 GameData.mainMenuState = true;
                 GameData.currentUI = new MenuUI();
             }
@@ -810,8 +826,208 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                         clickPosition.y < y + 150 + SAVE_BUTTON_HEIGHT &&
                         clickPosition.y > y + 150
         ) {
+            saveGame();
+            state = State.Running;
             GameData.gamePlayState = false;
             GameData.resetGameState = true;
+            GameData.currentUI = new MenuUI();
+        }
+    }
+
+    public void saveGame() {
+        prefs = Gdx.app.getPreferences("savedData");
+        // Saving players data
+        prefs.putFloat("playerRobustness", player.robustness);
+        prefs.putFloat("playerSpeed", player.speed);
+        prefs.putFloat("playerAcceleration", player.acceleration);
+        prefs.putFloat("playerManeuverability", player.maneuverability);
+        prefs.putInteger("playerBoatType", player.boatType);
+        prefs.putFloat("playerCurrentSpeed", player.current_speed);
+        prefs.putFloat("playerStamina", player.stamina);
+        Vector2 playerPosition = player.boatBody.getPosition();
+        prefs.putFloat("playerPosX", playerPosition.x);
+        prefs.putFloat("playerPosY", playerPosition.y);
+        prefs.putFloat("playerAngle", (float) Math.toDegrees(player.boatBody.getAngle()));
+        prefs.putInteger("playerStandings", GameData.standings[0]);
+        prefs.putFloat("playerPenalties", GameData.penalties[0]);
+        prefs.putFloat("playerTimeReductions", GameData.timeReductions[0]);
+
+        // Saving AI data
+        for (int i = 0; i != opponents.length; i++) {
+            prefs.putFloat("opponent" + i + "Robustness", opponents[i].robustness);
+            prefs.putFloat("opponent" + i + "Speed", opponents[i].speed);
+            prefs.putFloat("opponent" + i + "Acceleration", opponents[i].acceleration);
+            prefs.putFloat("opponent" + i + "Maneuverability", opponents[i].maneuverability);
+            prefs.putInteger("opponent" + i + "BoatType", opponents[i].boatType);
+            prefs.putFloat("opponent" + i + "CurrentSpeed", opponents[i].current_speed);
+            prefs.putFloat("opponent" + i + "Stamina", opponents[i].stamina);
+            Vector2 opponentPosition = opponents[i].boatBody.getPosition();
+            prefs.putFloat("opponent" + i + "PosX", opponentPosition.x);
+            prefs.putFloat("opponent" + i + "PosY", opponentPosition.y);
+            prefs.putFloat("opponent" + i + "Angle", (float) Math.toDegrees(opponents[i].boatBody.getAngle()));
+            prefs.putFloat("opponent" + i + "Penalties", GameData.penalties[i + 1]);
+            prefs.putFloat("opponent" + i + "TimeReductions", GameData.timeReductions[i + 1]);
+        }
+
+        // Saving map data
+        for (int i = GameData.currentLeg; i != map.length; i++) {
+            Lane lanes[] = map[i].lanes;
+            // Loop to save all lane data
+            for (int j = 0; j != lanes.length; j++) {
+                Obstacle obstacles[] = lanes[j].obstacles;
+                // Loop to save all the obstacles in a lane
+                for (int k = 0; k != obstacles.length; k++) {
+                    prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "TextureName", obstacles[k].textureName);
+                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "Scale", obstacles[k].scale);
+                    prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "BodyFile", obstacles[k].bodyFile);
+                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosX", obstacles[k].posX);
+                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosY", obstacles[k].posY);
+                }
+                PowerUp powerUps[] = lanes[j].powerUps;
+                // Loop to save all the powerUps in a lane
+                for (int l = 0; l != powerUps.length; l++) {
+                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "TextureName", powerUps[l].textureName);
+                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "PowerUpName", powerUps[l].powerupName);
+                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "Scale", powerUps[l].scale);
+                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "BodyFile", powerUps[l].bodyFile);
+                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosX", powerUps[l].posX);
+                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosY", powerUps[l].posY);
+                }
+                prefs.putInteger("noObstacles" + j, obstacles.length);
+                prefs.putInteger("noPowerUps" + j, powerUps.length);
+            }
+        }
+        prefs.putString("gameDifficulty", map[0].gameDifficulty);
+        // Saving camera data
+        Vector3 cameraPosition = camera.position;
+        prefs.putFloat("cameraPosX", camera.position.x);
+        prefs.putFloat("cameraPosY", cameraPosition.y);
+        prefs.putInteger("currentLeg", GameData.currentLeg);
+        prefs.putFloat("currentTime", GameData.currentTimer);
+        GameData.fromSave = false;
+
+
+        prefs.flush();
+    }
+
+    /**
+     * Helper function that calls other methods to load all the data from load file
+     */
+    public void handleLoadingGame() {
+        GameData.currentLeg = prefs.getInteger("currentLeg");
+        GameData.currentTimer = prefs.getFloat("currentTime");
+        updateBoatTypeFromLoad();
+        updateTimeReductionFromLoad();
+        updatePenaltiesFromLoad();
+        createMapFromLoad();
+        createPlayerFromLoad();
+        createOpponentsFromLoad();
+        updateCamera(player);
+    }
+
+    /**
+     *
+     */
+    public void updateBoatTypeFromLoad() {
+        GameData.boatTypes[0] = prefs.getInteger("playerBoatType");
+        GameData.boatTypes[1] = prefs.getInteger("opponent0BoatType");
+        GameData.boatTypes[2] = prefs.getInteger("opponent1BoatType");
+        GameData.boatTypes[3] = prefs.getInteger("opponent2BoatType");
+    }
+
+    /**
+     * Assigns penalties from save file to global variable
+     */
+    public void updatePenaltiesFromLoad() {
+        GameData.penalties[0] = prefs.getFloat("playerPenalties");
+        GameData.penalties[1] = prefs.getFloat("opponent0Penalties");
+        GameData.penalties[2] = prefs.getFloat("opponent1Penalties");
+        GameData.penalties[3] = prefs.getFloat("opponent2Penalties");
+
+    }
+
+    /**
+     * Assigns time reductions from save file to global variable
+     */
+    public void updateTimeReductionFromLoad() {
+        GameData.timeReductions[0] = prefs.getFloat("playerTimeReductions");
+        GameData.timeReductions[1] = prefs.getFloat("opponent0TimeReductions");
+        GameData.timeReductions[2] = prefs.getFloat("opponent1TimeReductions");
+        GameData.timeReductions[3] = prefs.getFloat("opponent2TimeReductions");
+    }
+
+    /**
+     * Method for creating a map from a load file
+     */
+    public void createMapFromLoad() {
+        world = new World[3];
+        map = new Map[3];
+        float width = Gdx.graphics.getWidth();
+        for (int i = 0; i < 3; i++) {
+            // Initialize the physics game World
+            world[i] = new World(new Vector2(0f, 0f), true);
+
+            // Initialize the map
+            map[i] = new Map("Map1/Map1.tmx", width, prefs.getString("gameDifficulty"));
+
+            // Calculate the ratio between pixels, meters and tiles
+            GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
+            GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
+
+            // Create the collision with the land
+            map[i].createMapCollisions("CollisionLayerLeft", world[i]);
+            map[i].createMapCollisions("CollisionLayerRight", world[i]);
+
+            // Create the lanes, and the obstacles in the physics game world
+            map[i].createLanesFromLoad(world[i], i);
+
+            // Create the finish line
+            map[i].createFinishLine("finishLine.png");
+
+            // Create a new collision handler for the world
+            createContactListener(world[i]);
+        }
+    }
+
+    /**
+     * Method to load player data from load file
+     */
+    public void createPlayerFromLoad() {
+        float pRobustness = prefs.getFloat("playerRobustness");
+        float pSpeed = prefs.getFloat("playerSpeed");
+        float pAcceleration = prefs.getFloat("playerAcceleration");
+        float pManeuverability = prefs.getFloat("playerManeuverability");
+        int pBoatType = prefs.getInteger("playerBoatType");
+        float pCurrentSpeed = prefs.getFloat("playerCurrentSpeed");
+        float pStamina = prefs.getFloat("playerStamina");
+        float pPosX = prefs.getFloat("playerPosX");
+        float pPosY = prefs.getFloat("playerPosY");
+        float pAngle = prefs.getFloat("playerAngle");
+        int currentLeg = prefs.getInteger("currentLeg");
+        player = new Player(pRobustness, pSpeed, pAcceleration, pManeuverability, pBoatType, map[currentLeg].lanes[0], pCurrentSpeed, pStamina);
+        player.createBoatBody(world[currentLeg], pPosX, pPosY, "Boat1.json");
+        player.boatSprite.setRotation(pAngle);
+    }
+
+    /**
+     * Method to load all opponents data from load file
+     */
+    public void createOpponentsFromLoad() {
+        for (int i = 0; i != 3; i++) {
+            float oRobustness = prefs.getFloat("opponent" + i + "Robustness");
+            float oSpeed = prefs.getFloat("opponent" + i + "Speed");
+            float oAcceleration = prefs.getFloat("opponent" + i + "Acceleration");
+            float oManeuverability = prefs.getFloat("opponent" + i + "Maneuverability");
+            int oBoatType = prefs.getInteger("opponent" + i + "BoatType");
+            float oCurrentSpeed = prefs.getFloat("opponent" + i + "CurrentSpeed");
+            float oStamina = prefs.getFloat("opponent" + i + "Stamina");
+            float oPosX = prefs.getFloat("opponent" + i + "PosX");
+            float oPosY = prefs.getFloat("opponent" + i + "PosY");
+            float oAngle = prefs.getFloat("opponent" + i + "Angle");
+            int currentLeg = prefs.getInteger("currentLeg");
+            opponents[i] = new AI(oRobustness, oSpeed, oAcceleration, oManeuverability, oBoatType, map[currentLeg].lanes[i + 1], oCurrentSpeed, oStamina);
+            opponents[i].createBoatBody(world[currentLeg], oPosX, oPosY, "Boat1.json");
+            opponents[i].boatSprite.setRotation(oAngle);
         }
     }
 

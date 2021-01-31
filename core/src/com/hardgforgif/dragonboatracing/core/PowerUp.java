@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -17,9 +18,15 @@ public class PowerUp {
     public Sprite powerupSprite;
     public Body powerupBody;
     public String powerupName;
+    public String textureName;
+    public float scale;
+    public String bodyFile;
+    public float posX;
+    public float posY;
     private Texture powerupTexture;
 
     public PowerUp(String textureName) {
+        this.textureName = textureName;
         powerupTexture = new Texture(textureName);
         if (textureName.equals("PowerUps/PowerUp1.png")) {
             powerupName = "healthBoost";
@@ -43,6 +50,8 @@ public class PowerUp {
      * @param bodyFile the name of the box2D editor json file for the body fixture
      */
     public void createPowerUpBody(World world, float posX, float posY, String bodyFile, float scale) {
+        this.scale = scale;
+        this.bodyFile = bodyFile;
         powerupSprite = new Sprite(powerupTexture);
         powerupSprite.scale(scale);
 
@@ -60,7 +69,9 @@ public class PowerUp {
         fixtureDef.density = 0f;
         fixtureDef.restitution = 0f;
         fixtureDef.friction = 0f;
-
+        Vector2 position = powerupBody.getPosition();
+        this.posX = position.x;
+        this.posY = position.y;
         scale = powerupSprite.getWidth() / GameData.METERS_TO_PIXELS * powerupSprite.getScaleX();
         loader.attachFixture(powerupBody, "Name", fixtureDef, scale);
 
