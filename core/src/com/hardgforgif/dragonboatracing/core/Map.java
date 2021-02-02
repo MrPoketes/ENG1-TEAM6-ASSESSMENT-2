@@ -1,5 +1,7 @@
 package com.hardgforgif.dragonboatracing.core;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -18,6 +20,11 @@ import com.hardgforgif.dragonboatracing.GameData;
 
 public class Map {
     public Lane[] lanes = new Lane[4];
+
+    // Added code start
+    public String gameDifficulty;
+    // Added code end
+
     // Map components
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
@@ -30,13 +37,13 @@ public class Map {
     private float unitScale;
     private Texture finishLineTexture;
     private Sprite finishLineSprite;
-
     // Added code start
     private int nrObstacles;
     private int nrPowerUps;
     // Added code end
 
     public Map(String tmxFile, float width, String gameDifficulty) {
+        this.gameDifficulty = gameDifficulty;
         tiledMap = new TmxMapLoader().load(tmxFile);
         screenWidth = width;
 
@@ -164,6 +171,102 @@ public class Map {
         lanes[3].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
         // Modified code end
     }
+
+    /**
+     * Instantiates the lane array and spawns obstacles on each of the lanes
+     *
+     * @param world    World to spawn the obstacles in
+     * @param mapIndex leg number
+     */
+    // Added code start
+    public void createLanesFromLoad(World world, int mapIndex) {
+        Preferences prefs = Gdx.app.getPreferences("savedData");
+        MapLayer leftLayer = tiledMap.getLayers().get("CollisionLayerLeft");
+        MapLayer rightLayer = tiledMap.getLayers().get("Lane1");
+
+        Obstacle[] loadedObstacles = getObstaclesFromLoad(world, mapIndex, 0, prefs);
+        PowerUp[] loadedPowerUps = getPowerUpsFromLoad(world, mapIndex, 0, prefs);
+        lanes[0] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps, loadedPowerUps, loadedObstacles);
+        lanes[0].constructBoundries(unitScale);
+
+        leftLayer = tiledMap.getLayers().get("Lane1");
+        rightLayer = tiledMap.getLayers().get("Lane2");
+
+        loadedObstacles = getObstaclesFromLoad(world, mapIndex, 1, prefs);
+        loadedPowerUps = getPowerUpsFromLoad(world, mapIndex, 1, prefs);
+
+        lanes[1] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps, loadedPowerUps, loadedObstacles);
+        lanes[1].constructBoundries(unitScale);
+
+        leftLayer = tiledMap.getLayers().get("Lane2");
+        rightLayer = tiledMap.getLayers().get("Lane3");
+
+        loadedObstacles = getObstaclesFromLoad(world, mapIndex, 2, prefs);
+        loadedPowerUps = getPowerUpsFromLoad(world, mapIndex, 2, prefs);
+
+        lanes[2] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps, loadedPowerUps, loadedObstacles);
+        lanes[2].constructBoundries(unitScale);
+
+        leftLayer = tiledMap.getLayers().get("Lane3");
+        rightLayer = tiledMap.getLayers().get("CollisionLayerRight");
+
+        loadedObstacles = getObstaclesFromLoad(world, mapIndex, 3, prefs);
+        loadedPowerUps = getPowerUpsFromLoad(world, mapIndex, 3, prefs);
+
+        lanes[3] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps, loadedPowerUps, loadedObstacles);
+        lanes[3].constructBoundries(unitScale);
+    }
+
+    /**
+     * Method to get all the obstacles from load file
+     *
+     * @param world     World to spawn the obstacles in
+     * @param mapIndex  leg number
+     * @param laneIndex lane number
+     * @param prefs     load file
+     * @return an array of obstacles
+     */
+    public Obstacle[] getObstaclesFromLoad(World world, int mapIndex, int laneIndex, Preferences prefs) {
+        int nrObstacles = prefs.getInteger("noObstacles" + laneIndex);
+        Obstacle[] loadedObstacles = new Obstacle[nrObstacles];
+        for (int i = 0; i != nrObstacles; i++) {
+            String oTextureName = prefs.getString("Map" + mapIndex + "Lane" + laneIndex + "Obstacle" + i + "TextureName");
+            float oScale = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "Obstacle" + i + "Scale");
+            String oBodyFile = prefs.getString("Map" + mapIndex + "Lane" + laneIndex + "Obstacle" + i + "BodyFile");
+            float oPosX = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "Obstacle" + i + "PosX");
+            float oPosY = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "Obstacle" + i + "PosY");
+            Obstacle obstacle = new Obstacle(oTextureName);
+            obstacle.createObstacleBody(world, oPosX, oPosY, oBodyFile, oScale);
+            loadedObstacles[i] = obstacle;
+        }
+        return loadedObstacles;
+    }
+
+    /**
+     * Method to get all the powerUps from load file
+     *
+     * @param world     World to spawn the obstacles in
+     * @param mapIndex  leg number
+     * @param laneIndex lane number
+     * @param prefs     load file
+     * @return an array of powerUps
+     */
+    public PowerUp[] getPowerUpsFromLoad(World world, int mapIndex, int laneIndex, Preferences prefs) {
+        int nrPowerUps = prefs.getInteger("noPowerUps" + laneIndex);
+        PowerUp[] loadedPowerUps = new PowerUp[nrPowerUps];
+        for (int i = 0; i != nrPowerUps; i++) {
+            String pTextureName = prefs.getString("Map" + mapIndex + "Lane" + laneIndex + "PowerUp" + i + "TextureName");
+            float pScale = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "PowerUp" + i + "Scale");
+            String pBodyFile = prefs.getString("Map" + mapIndex + "Lane" + laneIndex + "PowerUp" + i + "BodyFile");
+            float pPosX = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "PowerUp" + i + "PosX");
+            float pPosY = prefs.getFloat("Map" + mapIndex + "Lane" + laneIndex + "PowerUp" + i + "PosY");
+            PowerUp powerUp = new PowerUp(pTextureName);
+            powerUp.createPowerUpBody(world, pPosX, pPosY, pBodyFile, pScale);
+            loadedPowerUps[i] = powerUp;
+        }
+        return loadedPowerUps;
+    }
+    // Added code end
 
     /**
      * Creates the finish line at a fixed position

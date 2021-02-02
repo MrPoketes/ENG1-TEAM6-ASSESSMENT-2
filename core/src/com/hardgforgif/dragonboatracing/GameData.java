@@ -63,5 +63,6 @@ public class GameData {
     public static String gameDifficulty = "easy";
     public static boolean difficultyChanged = false;
     public static boolean switchControls = false;
+    public static boolean fromSave = false;
     // Added code end
 }
