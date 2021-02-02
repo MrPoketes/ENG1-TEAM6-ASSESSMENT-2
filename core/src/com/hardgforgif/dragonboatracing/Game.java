@@ -40,20 +40,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     private Batch batch;
     private Batch UIbatch;
     private OrthographicCamera camera;
-    private World[] world;
     private Vector2 mousePosition = new Vector2();
     private Vector2 clickPosition = new Vector2();
     private boolean[] pressedKeys = new boolean[4]; // W, A, S, D buttons status
-    private ArrayList<Body> toBeRemovedBodies = new ArrayList<>();
-    private ArrayList<Body> toUpdateHealth = new ArrayList<>();
     // Added code start
-    // ArrayLists for powerUps
-    private ArrayList<Body> toHealBody = new ArrayList<>();
-    private ArrayList<Body> toRestoreStamina = new ArrayList<>();
-    private ArrayList<Body> toIncreaseSpeed = new ArrayList<>();
-    private ArrayList<Body> toReduceTime = new ArrayList<>();
-    private ArrayList<Body> toIncreaseAcceleration = new ArrayList<>();
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private State state;
     // Added code end
 
@@ -84,83 +74,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         // Added code end
 
 
-    }
-
-    /**
-     * This method creates new ContactListener who's methods are executed when objects collide
-     *
-     * @param world This is the physics world in which the collisions happen
-     */
-    private void createContactListener(World world) {
-        world.setContactListener(new ContactListener() {
-            @Override
-            public void beginContact(Contact contact) {
-                Fixture fixtureA = contact.getFixtureA();
-                Fixture fixtureB = contact.getFixtureB();
-                // Remove obstacle or powerUp after collision
-
-                // Modified code start
-                if (fixtureA.getBody().getUserData() instanceof Obstacle || fixtureA.getBody().getUserData() instanceof PowerUp) {
-                    toBeRemovedBodies.add(fixtureA.getBody());
-                } else if (fixtureB.getBody().getUserData() instanceof Obstacle || fixtureB.getBody().getUserData() instanceof PowerUp) {
-                    toBeRemovedBodies.add(fixtureB.getBody());
-                }
-                // Update health of boat if it collided with a obstacle
-                if (fixtureA.getBody().getUserData() instanceof Boat && !(fixtureB.getBody().getUserData() instanceof PowerUp)) {
-                    toUpdateHealth.add(fixtureA.getBody());
-                } else if (fixtureB.getBody().getUserData() instanceof Boat && !(fixtureA.getBody().getUserData() instanceof PowerUp)) {
-                    toUpdateHealth.add(fixtureB.getBody());
-                }
-                if (fixtureA.getBody().getUserData() instanceof PowerUp &&
-                        fixtureB.getBody().getUserData() instanceof Boat
-                ) {
-                    // Modified code end
-                    // Added code start
-                    String powerUpName = ((PowerUp) fixtureA.getBody().getUserData()).powerupName;
-                    if (powerUpName.equals("healthBoost")) {
-                        toHealBody.add(fixtureB.getBody());
-                    } else if (powerUpName.equals("staminaBoost")) {
-                        toRestoreStamina.add(fixtureB.getBody());
-                    } else if (powerUpName.equals("speedBoost")) {
-                        toIncreaseSpeed.add(fixtureB.getBody());
-                    } else if (powerUpName.equals("accelerationBoost")) {
-                        toIncreaseAcceleration.add(fixtureB.getBody());
-                    } else if (powerUpName.equals("timeReduction")) {
-                        toReduceTime.add(fixtureB.getBody());
-                    }
-
-                } else if (fixtureB.getBody().getUserData() instanceof PowerUp &&
-                        fixtureA.getBody().getUserData() instanceof Boat
-                ) {
-                    String powerUpName = ((PowerUp) fixtureB.getBody().getUserData()).powerupName;
-                    if (powerUpName.equals("healthBoost")) {
-                        toHealBody.add(fixtureA.getBody());
-                    } else if (powerUpName.equals("staminaBoost")) {
-                        toRestoreStamina.add(fixtureA.getBody());
-                    } else if (powerUpName.equals("speedBoost")) {
-                        toIncreaseSpeed.add(fixtureA.getBody());
-                    } else if (powerUpName.equals("accelerationBoost")) {
-                        toIncreaseAcceleration.add(fixtureA.getBody());
-                    } else if (powerUpName.equals("timeReduction")) {
-                        toReduceTime.add(fixtureA.getBody());
-                    }
-                }
-                // Added code end
-
-            }
-
-            @Override
-            public void endContact(Contact contact) {
-            }
-
-            @Override
-            public void preSolve(Contact contact, Manifold manifold) {
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse contactImpulse) {
-            }
-        });
     }
 
     /**
@@ -283,13 +196,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
      * Gets called once the user has selected a game difficulty
      */
     public void updateMapDifficulty() {
-        world = new World[3];
         map = new Map[3];
         float width = Gdx.graphics.getWidth();
         for (int i = 0; i < 3; i++) {
-            // Initialize the physics game World
-            world[i] = new World(new Vector2(0f, 0f), true);
-
             // Initialize the map
             map[i] = new Map("Map1/Map1.tmx", width, GameData.gameDifficulty);
 
@@ -298,17 +207,16 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
             // Create the collision with the land
-            map[i].createMapCollisions("CollisionLayerLeft", world[i]);
-            map[i].createMapCollisions("CollisionLayerRight", world[i]);
+            // Modified code start
+            map[i].createMapCollisions("CollisionLayerLeft");
+            map[i].createMapCollisions("CollisionLayerRight");
 
             // Create the lanes, and the obstacles in the physics game world
-            map[i].createLanes(world[i]);
+            map[i].createLanes();
+            // Modified code end
 
             // Create the finish line
             map[i].createFinishLine("finishLine.png");
-
-            // Create a new collision handler for the world
-            createContactListener(world[i]);
         }
     }
 
@@ -374,99 +282,25 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                             player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
                                     GameData.boatsStats[playerBoatType][2], GameData.boatsStats[playerBoatType][3],
                                     playerBoatType, map[GameData.currentLeg].lanes[0]);
-                            player.createBoatBody(world[GameData.currentLeg], GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
+                            // Modified code start
+                            player.createBoatBody(map[GameData.currentLeg].world, GameData.startingPoints[0][0], GameData.startingPoints[0][1], "Boat1.json");
+                            // Modified code end
                             // Create the AI boats
                             for (int i = 1; i <= 3; i++) {
                                 int AIBoatType = GameData.boatTypes[i];
                                 opponents[i - 1] = new AI(GameData.boatsStats[AIBoatType][0], GameData.boatsStats[AIBoatType][1],
                                         GameData.boatsStats[AIBoatType][2], GameData.boatsStats[AIBoatType][3],
                                         AIBoatType, map[GameData.currentLeg].lanes[i]);
-                                opponents[i - 1].createBoatBody(world[GameData.currentLeg], GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
+                                // Modified code start
+                                opponents[i - 1].createBoatBody(map[GameData.currentLeg].world, GameData.startingPoints[i][0], GameData.startingPoints[i][1], "Boat1.json");
+                                // Modified code end
                             }
                         }
 
                     }
+                    //Step the world's physics, and also handle collisions and queues for collision actions.
+                    map[GameData.currentLeg].stepWorld(player, opponents);
 
-                    // Iterate through the bodies that need to be removed from the world after a collision
-                    for (Body body : toBeRemovedBodies) {
-                        // Find the obstacle that has this body and mark it as null
-                        // so it's sprite doesn't get rendered in future frames
-                        for (Lane lane : map[GameData.currentLeg].lanes) {
-                            for (Obstacle obstacle : lane.obstacles) {
-                                if (obstacle.obstacleBody == body) {
-                                    obstacle.obstacleBody = null;
-                                }
-                            }
-                            // Added code start
-                            for (PowerUp powerup : lane.powerUps) {
-                                if (powerup.powerupBody == body) {
-                                    powerup.powerupBody = null;
-                                }
-                            }
-                            // Added code end
-                        }
-
-
-                        // Remove the body from the world to avoid other collisions with it
-                        world[GameData.currentLeg].destroyBody(body);
-                    }
-
-                    // Iterate through the bodies marked to be damaged after a collision
-                    for (Body body : toUpdateHealth) {
-                        // if it's the player body
-                        if (player.boatBody == body && !player.hasFinished()) {
-                            // Reduce the health and the speed
-                            player.robustness -= 10f;
-                            player.current_speed -= 30f;
-
-                            // If all the health is lost
-                            if (player.robustness <= 0 && GameData.results.size() < 4) {
-                                // Remove the body from the world, but keep it's sprite in place
-                                world[GameData.currentLeg].destroyBody(player.boatBody);
-
-                                // Add a DNF result
-                                GameData.results.add(new Float[]{0f, Float.MAX_VALUE});
-
-                                // Transition to the show result screen
-                                GameData.showResultsState = true;
-                                GameData.currentUI = new ResultsUI();
-                            }
-                        }
-                        // Otherwise, one of the AI has to be updated similarly
-                        else {
-                            for (int i = 0; i < 3; i++) {
-                                if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-
-                                    opponents[i].robustness -= 10f;
-                                    opponents[i].current_speed -= 30f;
-
-                                    if (opponents[i].robustness < 0 && GameData.results.size() < 4) {
-                                        world[GameData.currentLeg].destroyBody(opponents[i].boatBody);
-                                        GameData.results.add(new Float[]{Float.valueOf(i + 1), Float.MAX_VALUE});
-                                    }
-                                }
-
-                            }
-                        }
-
-                    }
-                    // Added code start
-                    handlePowerUp();
-                    // Added code end
-
-                    toBeRemovedBodies.clear();
-                    toUpdateHealth.clear();
-
-                    // Added code start
-                    toHealBody.clear();
-                    toIncreaseAcceleration.clear();
-                    toRestoreStamina.clear();
-                    toReduceTime.clear();
-                    toIncreaseSpeed.clear();
-                    // Added code end
-
-                    // Advance the game world physics
-                    world[GameData.currentLeg].step(1f / 60f, 6, 2);
                     // Update the timer
                     GameData.currentTimer += Gdx.graphics.getDeltaTime();
 
@@ -565,12 +399,8 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 camera.position.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
                 camera.update();
                 // Reset everything for the next game
-                world = new World[3];
                 map = new Map[3];
                 for (int i = 0; i < 3; i++) {
-                    // Initialize the physics game World
-                    world[i] = new World(new Vector2(0f, 0f), true);
-
                     // Initialize the map
                     map[i] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth(), GameData.gameDifficulty);
 
@@ -579,17 +409,16 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
                     // Create the collision with the land
-                    map[i].createMapCollisions("CollisionLayerLeft", world[i]);
-                    map[i].createMapCollisions("CollisionLayerRight", world[i]);
+                    // Modified code start
+                    map[i].createMapCollisions("CollisionLayerLeft");
+                    map[i].createMapCollisions("CollisionLayerRight");
 
                     // Create the lanes, and the obstacles in the physics game world
-                    map[i].createLanes(world[i]);
+                    map[i].createLanes();
+                    // Modified code end
 
                     // Create the finish line
                     map[i].createFinishLine("finishLine.png");
-
-                    // Create a new collision handler for the world
-                    createContactListener(world[i]);
                 }
                 GameData.currentLeg = 0;
                 GameData.fromSave = false;
@@ -605,113 +434,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             clickPosition.set(0f, 0f);
     }
 
-    /**
-     * Applies picked up powerUp boosts to either the player or AI
-     */
-    public void handlePowerUp() {
-        // A runnable for player boat
-        Runnable decreaseAccelerationTaskPlayer = new Runnable() {
-            @Override
-            public void run() {
-                player.speed -= 30f;
-            }
-        };
-
-        // A runnable for AI. We need a different runnable to handle different logic for decreasing speed for AI boats
-        Runnable decreaseAccelerationTaskAI = new Runnable() {
-            @Override
-            public void run() {
-                int nr = GameData.reduceAIAccelerationList.pop();
-                opponents[nr].speed -= 30f;
-            }
-        };
-        // Iterate through the bodies marked to heal after picking up health powerUp
-        for (Body body : toHealBody) {
-            if (player.boatBody == body && !player.hasFinished()) {
-                player.robustness += 20f;
-            }
-            // If the AI picked up the powerUp
-            else {
-                for (int i = 0; i < 3; i++) {
-                    if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-                        opponents[i].robustness += 20f;
-                    }
-                }
-            }
-        }
-        // Iterate through the bodies marked to restore some stamina after stamina boost powerUp
-        for (Body body : toRestoreStamina) {
-            if (player.boatBody == body && !player.hasFinished()) {
-                player.stamina += 10f;
-            }
-            // If the AI picked up the powerUp
-            else {
-                for (int i = 0; i < 3; i++) {
-                    if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-                        opponents[i].stamina += 10f;
-                    }
-                }
-            }
-        }
-        /**
-         *  Iterate through the bodies marked to reduce time
-         *  We add the the reduced time to a GameData variable and after the leg is done we deduce this time
-         *  and show how much was deducted in the leaderboard
-         */
-        for (Body body : toReduceTime) {
-            if (player.boatBody == body && !player.hasFinished()) {
-                GameData.timeReductions[0] += 2f;
-            }
-            // If the AI picked up the powerUp
-            else {
-                for (int i = 0; i < 3; i++) {
-                    if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-                        GameData.timeReductions[i + 1] += 2f;
-                    }
-                }
-            }
-        }
-        /**
-         *  Iterate through the bodies marked to increase acceleration.
-         *  We create a scheduler to run after 5 seconds and remove the effect.
-         */
-
-        for (Body body : toIncreaseAcceleration) {
-            if (player.boatBody == body && !player.hasFinished()) {
-                player.speed += 30f;
-                player.acceleration += 50f;
-                scheduler.schedule(decreaseAccelerationTaskPlayer, 5, TimeUnit.SECONDS);
-            }
-            // If the AI picked up the powerUp
-            else {
-                for (int i = 0; i < 3; i++) {
-                    if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-                        GameData.reduceAIAccelerationList.push(i);
-                        opponents[i].speed += 30f;
-                        opponents[i].acceleration += 50f;
-                        scheduler.schedule(decreaseAccelerationTaskAI, 5, TimeUnit.SECONDS);
-                    }
-                }
-            }
-        }
-        // Iterate through the bodies marked to increase speed
-        for (Body body : toIncreaseSpeed) {
-            if (player.boatBody == body && !player.hasFinished()) {
-                player.speed += 10f;
-            }
-            // If the AI picked up the powerUp
-            else {
-                for (int i = 0; i < 3; i++) {
-                    if (opponents[i].boatBody == body && !opponents[i].hasFinished()) {
-                        opponents[i].speed += 10f;
-                    }
-                }
-            }
-        }
-    }
-
     public void dispose() {
-        world[GameData.currentLeg].dispose();
+        // Modified code start
+        map[GameData.currentLeg].world.dispose();
+        // Modified code end
     }
 
     @Override
@@ -725,7 +451,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 pressedKeys[2] = true;
             if (keycode == Input.Keys.RIGHT)
                 pressedKeys[3] = true;
-            return true;
             // Added code start
         } else {
             if (keycode == Input.Keys.W)
@@ -736,9 +461,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 pressedKeys[2] = true;
             if (keycode == Input.Keys.D)
                 pressedKeys[3] = true;
-            return true;
             // Added code end
         }
+        return true;
     }
 
     @Override
@@ -752,7 +477,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 pressedKeys[2] = false;
             if (keycode == Input.Keys.RIGHT)
                 pressedKeys[3] = false;
-            return true;
             //Added code start
         } else {
             if (keycode == Input.Keys.W)
@@ -763,9 +487,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 pressedKeys[2] = false;
             if (keycode == Input.Keys.D)
                 pressedKeys[3] = false;
-            return true;
             //Added code end
         }
+        return true;
     }
 
     @Override
@@ -960,13 +684,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
      * Method for creating a map from a load file
      */
     public void createMapFromLoad() {
-        world = new World[3];
         map = new Map[3];
         float width = Gdx.graphics.getWidth();
         for (int i = 0; i < 3; i++) {
-            // Initialize the physics game World
-            world[i] = new World(new Vector2(0f, 0f), true);
-
             // Initialize the map
             map[i] = new Map("Map1/Map1.tmx", width, prefs.getString("gameDifficulty"));
 
@@ -975,17 +695,16 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
             // Create the collision with the land
-            map[i].createMapCollisions("CollisionLayerLeft", world[i]);
-            map[i].createMapCollisions("CollisionLayerRight", world[i]);
+            // Modified code start
+            map[i].createMapCollisions("CollisionLayerLeft");
+            map[i].createMapCollisions("CollisionLayerRight");
 
             // Create the lanes, and the obstacles in the physics game world
-            map[i].createLanesFromLoad(world[i], i);
+            map[i].createLanesFromLoad(i);
+            // Modified code end
 
             // Create the finish line
             map[i].createFinishLine("finishLine.png");
-
-            // Create a new collision handler for the world
-            createContactListener(world[i]);
         }
     }
 
@@ -1005,7 +724,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         float pAngle = prefs.getFloat("playerAngle");
         int currentLeg = prefs.getInteger("currentLeg");
         player = new Player(pRobustness, pSpeed, pAcceleration, pManeuverability, pBoatType, map[currentLeg].lanes[0], pCurrentSpeed, pStamina);
-        player.createBoatBody(world[currentLeg], pPosX, pPosY, "Boat1.json");
+        player.createBoatBody(map[currentLeg].world, pPosX, pPosY, "Boat1.json");
         player.boatSprite.setRotation(pAngle);
     }
 
@@ -1026,7 +745,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             float oAngle = prefs.getFloat("opponent" + i + "Angle");
             int currentLeg = prefs.getInteger("currentLeg");
             opponents[i] = new AI(oRobustness, oSpeed, oAcceleration, oManeuverability, oBoatType, map[currentLeg].lanes[i + 1], oCurrentSpeed, oStamina);
-            opponents[i].createBoatBody(world[currentLeg], oPosX, oPosY, "Boat1.json");
+            opponents[i].createBoatBody(map[currentLeg].world, oPosX, oPosY, "Boat1.json");
             opponents[i].boatSprite.setRotation(oAngle);
         }
     }

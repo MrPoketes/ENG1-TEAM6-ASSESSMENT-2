@@ -20,7 +20,7 @@ public class Player extends Boat {
      * @param delta       time since last frame
      */
     public void updatePlayer(boolean[] pressedKeys, float delta) {
-        // Check which angle you need to rotate to, then apply the roation
+        // Check which angle you need to rotate to, then apply the rotation
         if (pressedKeys[1])
             targetAngle = 90f;
         else if (pressedKeys[3])
