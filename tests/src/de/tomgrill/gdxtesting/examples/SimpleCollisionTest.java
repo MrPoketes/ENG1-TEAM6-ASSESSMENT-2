@@ -27,7 +27,6 @@ public class SimpleCollisionTest {
         Create an obstacle.
         Use moveBoat() to collide the boat into the obstacle.
          */
-        System.out.println("dab on the haters");
         World world;
         world = new World(new Vector2(0f, 0f), true);
         world.setContactListener(new ContactListener() {
