@@ -90,7 +90,7 @@ public class ChooseDifficultyUI extends UI {
     public void getInput(float screenWidth, Vector2 clickPos) {
         float x = screenWidth / 4 - EASY_BUTTON_WIDTH / 2;
         if (
-                clickPos.x < x + EASY_BUTTON_HEIGHT && clickPos.x > x &&
+                clickPos.x < x + EASY_BUTTON_WIDTH && clickPos.x > x &&
                         clickPos.y < EASY_BUTTON_Y + EASY_BUTTON_HEIGHT &&
                         clickPos.y > EASY_BUTTON_Y
         ) {
@@ -98,7 +98,7 @@ public class ChooseDifficultyUI extends UI {
         }
         x = 2 * screenWidth / 4 - MEDIUM_BUTTON_WIDTH / 2;
         if (
-                clickPos.x < x + MEDIUM_BUTTON_HEIGHT && clickPos.x > x &&
+                clickPos.x < x + MEDIUM_BUTTON_WIDTH && clickPos.x > x &&
                         clickPos.y < MEDIUM_BUTTON_Y + MEDIUM_BUTTON_HEIGHT &&
                         clickPos.y > MEDIUM_BUTTON_Y
         ) {
@@ -106,7 +106,7 @@ public class ChooseDifficultyUI extends UI {
         }
         x = 3 * screenWidth / 4 - HARD_BUTTON_WIDTH / 2;
         if (
-                clickPos.x < x + HARD_BUTTON_HEIGHT && clickPos.x > x &&
+                clickPos.x < x + HARD_BUTTON_WIDTH && clickPos.x > x &&
                         clickPos.y < HARD_BUTTON_Y + HARD_BUTTON_HEIGHT &&
                         clickPos.y > HARD_BUTTON_Y
         ) {
@@ -114,7 +114,7 @@ public class ChooseDifficultyUI extends UI {
         }
         x = screenWidth / 2 - PLAY_BUTTON_WIDTH / 2;
         if (
-                clickPos.x < x + PLAY_BUTTON_HEIGHT && clickPos.x > x &&
+                clickPos.x < x + PLAY_BUTTON_WIDTH && clickPos.x > x &&
                         clickPos.y < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT &&
                         clickPos.y > PLAY_BUTTON_Y
         ) {
