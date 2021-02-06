@@ -41,6 +41,9 @@ public class Map {
     // The width and the height of the map in tiles, used to calculate ratios
     private int mapWidth;
     private int mapHeight;
+    //Added code start
+    private final float FINISH_LINE_HEIGHT = 9000f;
+    //Added code end
     // The width of each tile in Pixels
     private float unitScale;
     private Texture finishLineTexture;
@@ -76,16 +79,16 @@ public class Map {
         world = new World(new Vector2(0f, 0f), true);
         createContactListener();
 
-        if (gameDifficulty == "easy") {
-            nrObstacles = 30;
+        if (gameDifficulty.equals("easy")) {
+            nrObstacles = 20;
             nrPowerUps = 15;
-        } else if (gameDifficulty == "medium") {
-            nrObstacles = 50;
+        } else if (gameDifficulty.equals("medium")) {
+            nrObstacles = 40;
             nrPowerUps = 10;
 
-        } else if (gameDifficulty == "hard") {
+        } else if (gameDifficulty.equals("hard")) {
             nrObstacles = 80;
-            nrPowerUps = 2;
+            nrPowerUps = 5;
         }
         // Added code end
     }
@@ -426,32 +429,32 @@ public class Map {
         // Modified code start
         lanes[0] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps);
         lanes[0].constructBoundries(unitScale);
-        lanes[0].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
-        lanes[0].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[0].spawnObstacles(world, FINISH_LINE_HEIGHT);
+        lanes[0].spawnPowerUps(world, FINISH_LINE_HEIGHT);
 
         leftLayer = tiledMap.getLayers().get("Lane1");
         rightLayer = tiledMap.getLayers().get("Lane2");
 
         lanes[1] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps);
         lanes[1].constructBoundries(unitScale);
-        lanes[1].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
-        lanes[1].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[1].spawnObstacles(world, FINISH_LINE_HEIGHT);
+        lanes[1].spawnPowerUps(world, FINISH_LINE_HEIGHT);
 
         leftLayer = tiledMap.getLayers().get("Lane2");
         rightLayer = tiledMap.getLayers().get("Lane3");
 
         lanes[2] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps);
         lanes[2].constructBoundries(unitScale);
-        lanes[2].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
-        lanes[2].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[2].spawnObstacles(world, FINISH_LINE_HEIGHT);
+        lanes[2].spawnPowerUps(world, FINISH_LINE_HEIGHT);
 
         leftLayer = tiledMap.getLayers().get("Lane3");
         rightLayer = tiledMap.getLayers().get("CollisionLayerRight");
 
         lanes[3] = new Lane(mapHeight, leftLayer, rightLayer, nrObstacles, nrPowerUps);
         lanes[3].constructBoundries(unitScale);
-        lanes[3].spawnObstacles(world, mapHeight / GameData.PIXELS_TO_TILES);
-        lanes[3].spawnPowerUps(world, mapHeight / GameData.PIXELS_TO_TILES);
+        lanes[3].spawnObstacles(world, FINISH_LINE_HEIGHT);
+        lanes[3].spawnPowerUps(world, FINISH_LINE_HEIGHT);
         // Modified code end
     }
 
@@ -559,11 +562,13 @@ public class Map {
         finishLineSprite = new Sprite(finishLineTexture);
 
         // Find out where it's going to start at, and how wide it will be, based on the limits of the edge lanes
-        float startpoint = lanes[0].getLimitsAt(9000f)[0];
-        float width = lanes[3].getLimitsAt(9000f)[1] - startpoint;
+        //Modified code start
+        float startpoint = lanes[0].getLimitsAt(FINISH_LINE_HEIGHT)[0];
+        float width = lanes[3].getLimitsAt(FINISH_LINE_HEIGHT)[1] - startpoint;
 
         // Set it's new found position and width
-        finishLineSprite.setPosition(startpoint, 9000f);
+        finishLineSprite.setPosition(startpoint, FINISH_LINE_HEIGHT);
+        //Modified code end
         finishLineSprite.setSize(width, 100);
     }
 

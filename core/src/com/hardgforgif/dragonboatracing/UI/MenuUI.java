@@ -170,9 +170,8 @@ public class MenuUI extends UI {
             GameData.currentUI = new ChooseDifficultyUI();
         }
         // Added code start
-        prefs = Gdx.app.getPreferences("savedData");
+        // If the exit button is clicked, close the game
         if (prefs.contains("playerRobustness")) {
-            // If the exit button is clicked, close the game
             x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
             if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&
                     clickPos.y < EXIT_BUTTON_Y - 120 + EXIT_BUTTON_HEIGHT &&
@@ -180,15 +179,25 @@ public class MenuUI extends UI {
             ) {
                 Gdx.app.exit();
             }
-            if (clickPos.x < x + CONTINUE_BUTTON_WIDTH && clickPos.x > x &&
-                    clickPos.y < CONTINUE_BUTTON_Y + CONTINUE_BUTTON_HEIGHT &&
-                    clickPos.y > CONTINUE_BUTTON_Y - 120
+        }
+        else {
+            x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
+            if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&
+                    clickPos.y < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT &&
+                    clickPos.y > EXIT_BUTTON_Y
             ) {
-                GameData.mainMenuState = false;
-                GameData.gamePlayState = true;
-                GameData.fromSave = true;
-                GameData.currentUI = new GamePlayUI();
+                Gdx.app.exit();
             }
+        }
+        if (prefs.contains("playerRobustness") &&
+                clickPos.x < x + CONTINUE_BUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < CONTINUE_BUTTON_Y + CONTINUE_BUTTON_HEIGHT &&
+                clickPos.y > CONTINUE_BUTTON_Y - 120
+        ) {
+            GameData.mainMenuState = false;
+            GameData.gamePlayState = true;
+            GameData.fromSave = true;
+            GameData.currentUI = new GamePlayUI();
         }
 
         x = 7 * screenWidth / 8 - OPTIONS_BUTTON_WIDTH / 2;
@@ -207,6 +216,6 @@ public class MenuUI extends UI {
             GameData.infoState = true;
             GameData.currentUI = new InfoUI();
         }
-
+        // Added code end
     }
 }

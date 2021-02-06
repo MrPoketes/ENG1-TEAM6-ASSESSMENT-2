@@ -116,6 +116,14 @@ public class ResultsUI extends UI {
             resultFonts[i].draw(batch, "Time reductions: " + GameData.timeReductions[boatNr], entrySprites[i].getX() + 500, entrySprites[i].getY() + 30);
             // Added code end
         }
+        //Added code start
+        if (GameData.results.size() == 4) {
+            timerFont.draw(batch, "Click to continue.", 300, 450);
+        }
+        else {
+            timerFont.draw(batch, "Waiting for all boats to finish...", 300, 450);
+        }
+
         timerFont.draw(batch, String.valueOf(Math.round(GameData.currentTimer * 10.0) / 10.0), 10, 700);
         batch.end();
 
