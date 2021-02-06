@@ -102,11 +102,13 @@ public class Lane {
     /**
      * Spawn obstacles on the lane
      *
-     * @param world     World to spawn obstacles in
-     * @param mapHeight Height of the map to draw on
+     * @param world            World to spawn obstacles in
+     * @param finishLineHeight Highest point obstacles should be spawned at
      */
-    public void spawnObstacles(World world, float mapHeight) {
-        float segmentLength = mapHeight / nrObstacles;
+    //Modified code start
+    public void spawnObstacles(World world, float finishLineHeight) {
+        float segmentLength = finishLineHeight / nrObstacles;
+        //Modified code end
         for (int i = 0; i < nrObstacles; i++) {
             int randomIndex = new Random().nextInt(6);
             float scale = 0f;
@@ -128,8 +130,14 @@ public class Lane {
     }
 
     // Added code start
-    public void spawnPowerUps(World world, float mapHeight) {
-        float segmentLength = mapHeight / nrPowerUps;
+    /**
+     * Spawn powerups on the lane
+     *
+     * @param world            World to spawn obstacles in
+     * @param finishLineHeight Highest point powerups should be spawned at
+     */
+    public void spawnPowerUps(World world, float finishLineHeight) {
+        float segmentLength = finishLineHeight / nrPowerUps;
         for (int i = 0; i < nrPowerUps; i++) {
             int randomIndex = new Random().nextInt(5);
             float scale = 0f;

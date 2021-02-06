@@ -1,6 +1,7 @@
 package com.hardgforgif.dragonboatracing;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -36,7 +37,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     // Added code end
     private Player player;
     private AI[] opponents = new AI[3];
-    private Map[] map;
+    private Map[] map = new Map[3];
     private Batch batch;
     private Batch UIbatch;
     private OrthographicCamera camera;
@@ -191,43 +192,8 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
-    /**
-     * Method to create a new map according to the difficulty.
-     * Gets called once the user has selected a game difficulty
-     */
-    public void updateMapDifficulty() {
-        map = new Map[3];
-        float width = Gdx.graphics.getWidth();
-        for (int i = 0; i < 3; i++) {
-            // Initialize the map
-            map[i] = new Map("Map1/Map1.tmx", width, GameData.gameDifficulty);
-
-            // Calculate the ratio between pixels, meters and tiles
-            GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
-            GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
-
-            // Create the collision with the land
-            // Modified code start
-            map[i].createMapCollisions("CollisionLayerLeft");
-            map[i].createMapCollisions("CollisionLayerRight");
-
-            // Create the lanes, and the obstacles in the physics game world
-            map[i].createLanes();
-            // Modified code end
-
-            // Create the finish line
-            map[i].createFinishLine("finishLine.png");
-        }
-    }
-
     @Override
     public void render() {
-        // Added code start
-        if (GameData.difficultyChanged) {
-            updateMapDifficulty();
-            GameData.difficultyChanged = false;
-        }
-        // Added code end
 
         // Reset the screen
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.3f, 1);
@@ -241,7 +207,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             GameData.currentUI.getInput(Gdx.graphics.getWidth(), clickPosition);
 
         }
-
         // Otherwise, if we are in the game play state
         else if (GameData.gamePlayState) {
             // Added code start
@@ -275,8 +240,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                         // Check if there is any saved data
                         if (GameData.fromSave && prefs.contains("playerRobustness")) {
                             handleLoadingGame();
-
                         } else {
+                            //Added code end
+                            startLeg(GameData.currentLeg);
                             // Create the player boat
                             int playerBoatType = GameData.boatTypes[0];
                             player = new Player(GameData.boatsStats[playerBoatType][0], GameData.boatsStats[playerBoatType][1],
@@ -378,6 +344,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             GameData.results.clear();
             GameData.currentTimer = 0f;
             GameData.penalties = new float[4];
+            //Added code start
+            GameData.timeReductions = new float[4];
+            //Added code end
 
             // If we're coming from the result screen, then we need to advance to the next leg
             if (GameData.showResultsState) {
@@ -399,27 +368,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                 camera.position.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
                 camera.update();
                 // Reset everything for the next game
+                // Modified code start
                 map = new Map[3];
-                for (int i = 0; i < 3; i++) {
-                    // Initialize the map
-                    map[i] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth(), GameData.gameDifficulty);
+                // Modified code end
 
-                    // Calculate the ratio between pixels, meters and tiles
-                    GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
-                    GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
-
-                    // Create the collision with the land
-                    // Modified code start
-                    map[i].createMapCollisions("CollisionLayerLeft");
-                    map[i].createMapCollisions("CollisionLayerRight");
-
-                    // Create the lanes, and the obstacles in the physics game world
-                    map[i].createLanes();
-                    // Modified code end
-
-                    // Create the finish line
-                    map[i].createFinishLine("finishLine.png");
-                }
                 GameData.currentLeg = 0;
                 GameData.fromSave = false;
                 GameData.mainMenuState = true;
@@ -433,6 +385,36 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         if (clickPosition.x != 0f && clickPosition.y != 0f)
             clickPosition.set(0f, 0f);
     }
+
+    // Modified code start
+    /**
+     * Creates a Map for the leg specified, and updates the currentLeg.
+     * Assumes that map[] has already been created.
+     *
+     * @param newLegNumber Leg to change map to.
+     */
+    public void startLeg(int newLegNumber){
+        GameData.currentLeg = newLegNumber;
+        // Initialize the map
+        map[newLegNumber] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth(), GameData.gameDifficulty);
+
+        // Calculate the ratio between pixels, meters and tiles
+        GameData.TILES_TO_METERS = map[newLegNumber].getTilesToMetersRatio();
+        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
+
+        // Create the collision with the land
+        // Modified code start
+        map[newLegNumber].createMapCollisions("CollisionLayerLeft");
+        map[newLegNumber].createMapCollisions("CollisionLayerRight");
+
+        // Create the lanes, and the obstacles in the physics game world
+        map[newLegNumber].createLanes();
+        // Modified code end
+
+        // Create the finish line
+        map[newLegNumber].createFinishLine("finishLine.png");
+    }
+    // Modified code end
 
     public void dispose() {
         // Modified code start
@@ -594,32 +576,31 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
 
         // Saving map data
-        for (int i = GameData.currentLeg; i != map.length; i++) {
-            Lane lanes[] = map[i].lanes;
-            // Loop to save all lane data
-            for (int j = 0; j != lanes.length; j++) {
-                Obstacle obstacles[] = lanes[j].obstacles;
-                // Loop to save all the obstacles in a lane
-                for (int k = 0; k != obstacles.length; k++) {
-                    prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "TextureName", obstacles[k].textureName);
-                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "Scale", obstacles[k].scale);
-                    prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "BodyFile", obstacles[k].bodyFile);
-                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosX", obstacles[k].posX);
-                    prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosY", obstacles[k].posY);
-                }
-                PowerUp powerUps[] = lanes[j].powerUps;
-                // Loop to save all the powerUps in a lane
-                for (int l = 0; l != powerUps.length; l++) {
-                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "TextureName", powerUps[l].textureName);
-                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "PowerUpName", powerUps[l].powerupName);
-                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "Scale", powerUps[l].scale);
-                    prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "BodyFile", powerUps[l].bodyFile);
-                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosX", powerUps[l].posX);
-                    prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosY", powerUps[l].posY);
-                }
-                prefs.putInteger("noObstacles" + j, obstacles.length);
-                prefs.putInteger("noPowerUps" + j, powerUps.length);
+        int i = GameData.currentLeg;
+        Lane lanes[] = map[i].lanes;
+        // Loop to save all lane data
+        for (int j = 0; j != lanes.length; j++) {
+            Obstacle obstacles[] = lanes[j].obstacles;
+            // Loop to save all the obstacles in a lane
+            for (int k = 0; k != obstacles.length; k++) {
+                prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "TextureName", obstacles[k].textureName);
+                prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "Scale", obstacles[k].scale);
+                prefs.putString("Map" + i + "Lane" + j + "Obstacle" + k + "BodyFile", obstacles[k].bodyFile);
+                prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosX", obstacles[k].posX);
+                prefs.putFloat("Map" + i + "Lane" + j + "Obstacle" + k + "PosY", obstacles[k].posY);
             }
+            PowerUp powerUps[] = lanes[j].powerUps;
+            // Loop to save all the powerUps in a lane
+            for (int l = 0; l != powerUps.length; l++) {
+                prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "TextureName", powerUps[l].textureName);
+                prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "PowerUpName", powerUps[l].powerupName);
+                prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "Scale", powerUps[l].scale);
+                prefs.putString("Map" + i + "Lane" + j + "PowerUp" + l + "BodyFile", powerUps[l].bodyFile);
+                prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosX", powerUps[l].posX);
+                prefs.putFloat("Map" + i + "Lane" + j + "PowerUp" + l + "PosY", powerUps[l].posY);
+            }
+            prefs.putInteger("noObstacles" + j, obstacles.length);
+            prefs.putInteger("noPowerUps" + j, powerUps.length);
         }
         prefs.putString("gameDifficulty", map[0].gameDifficulty);
         // Saving camera data
@@ -686,26 +667,25 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     public void createMapFromLoad() {
         map = new Map[3];
         float width = Gdx.graphics.getWidth();
-        for (int i = 0; i < 3; i++) {
-            // Initialize the map
-            map[i] = new Map("Map1/Map1.tmx", width, prefs.getString("gameDifficulty"));
+        int i = GameData.currentLeg;
+        // Initialize the map
+        map[i] = new Map("Map1/Map1.tmx", width, prefs.getString("gameDifficulty"));
 
-            // Calculate the ratio between pixels, meters and tiles
-            GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
-            GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
+        // Calculate the ratio between pixels, meters and tiles
+        GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
+        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
-            // Create the collision with the land
-            // Modified code start
-            map[i].createMapCollisions("CollisionLayerLeft");
-            map[i].createMapCollisions("CollisionLayerRight");
+        // Create the collision with the land
+        // Modified code start
+        map[i].createMapCollisions("CollisionLayerLeft");
+        map[i].createMapCollisions("CollisionLayerRight");
 
-            // Create the lanes, and the obstacles in the physics game world
-            map[i].createLanesFromLoad(i);
-            // Modified code end
+        // Create the lanes, and the obstacles in the physics game world
+        map[i].createLanesFromLoad(i);
+        // Modified code end
 
-            // Create the finish line
-            map[i].createFinishLine("finishLine.png");
-        }
+        // Create the finish line
+        map[i].createFinishLine("finishLine.png");
     }
 
     /**

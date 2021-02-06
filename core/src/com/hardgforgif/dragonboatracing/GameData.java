@@ -33,6 +33,14 @@ public class GameData {
     // Ordered by: robustness, speed, acceleration, maneuverability
     public static float[][] boatsStats = new float[][]{{120, 110, 100, 80}, {55, 110, 130, 60},
             {90, 110, 100, 130}, {65, 120, 90, 55}};
+    /*
+    //Added code start
+    //Comment the lines above and uncomment the lines below to get super fast boats for testing:
+    //The red one is fastest!
+    public static float[][] boatsStats = new float[][]{{10000, 2000, 2000, 80}, {10000, 1000, 1000, 60},
+            {10000, 1000, 1000, 130}, {10000, 1000, 1000, 55}};
+     */
+    //Added code end
     // Store information about each lane's boat
     // Boat's starting location
     public static float[][] startingPoints = new float[][]{{2.3f, 4f}, {4f, 4f}, {7f, 4f}, {10f, 4f}};
@@ -61,7 +69,6 @@ public class GameData {
     public static Stack<Integer> reduceAIAccelerationList = new Stack();
     // Sets the game difficulty. Available types - easy, medium, hard
     public static String gameDifficulty = "easy";
-    public static boolean difficultyChanged = false;
     public static boolean switchControls = false;
     public static boolean fromSave = false;
     // Added code end

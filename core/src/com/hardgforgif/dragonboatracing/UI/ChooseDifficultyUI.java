@@ -118,7 +118,6 @@ public class ChooseDifficultyUI extends UI {
                         clickPos.y < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT &&
                         clickPos.y > PLAY_BUTTON_Y
         ) {
-            GameData.difficultyChanged = true;
             GameData.chooseDifficultyState = false;
             GameData.choosingBoatState = true;
             GameData.currentUI = new ChoosingUI();
