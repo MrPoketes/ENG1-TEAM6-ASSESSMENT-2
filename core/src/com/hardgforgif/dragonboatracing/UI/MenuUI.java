@@ -1,6 +1,7 @@
 package com.hardgforgif.dragonboatracing.UI;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -16,25 +17,36 @@ public class MenuUI extends UI {
 
     private static final int PLAY_BUTTON_WIDTH = 300;
     private static final int PLAY_BUTTON_HEIGHT = 120;
-    private static final int PLAY_BUTTON_Y = 230;
+    private static final int PLAY_BUTTON_Y = 300;
 
     private static final int EXIT_BUTTON_WIDTH = 250;
     private static final int EXIT_BUTTON_HEIGHT = 120;
-    private static final int EXIT_BUTTON_Y = 100;
+    private static final int EXIT_BUTTON_Y = 170;
 
-    private static final int OPTIONS_BUTTON_WIDTH = 300;
+    private static final int OPTIONS_BUTTON_WIDTH = 200;
     private static final int OPTIONS_BUTTON_HEIGHT = 120;
     private static final int OPTIONS_BUTTON_Y = 10;
+    // Added code start
+    private static final int INFO_BUTTON_WIDTH = 200;
+    private static final int INFO_BUTTON_HEIGHT = 120;
+    private static final int INFO_BUTTON_Y = 10;
 
+    private static final int CONTINUE_BUTTON_WIDTH = 300;
+    private static final int CONTINUE_BUTTON_HEIGHT = 120;
+    private static final int CONTINUE_BUTTON_Y = 170;
 
-    Texture playButtonActive;
-    Texture playButtonInactive;
-    Texture exitButtonActive;
-    Texture exitButtonInactive;
     Texture infoButtonActive;
     Texture infoButtonInactive;
     Texture optionsButtonActive;
     Texture optionsButtonInactive;
+    Texture continueButtonInactive;
+    Texture continueButtonActive;
+    Preferences prefs;
+    // Added code end
+    Texture playButtonActive;
+    Texture playButtonInactive;
+    Texture exitButtonActive;
+    Texture exitButtonInactive;
     Texture logo;
 
     ScrollingBackground scrollingBackground = new ScrollingBackground();
@@ -49,8 +61,14 @@ public class MenuUI extends UI {
         playButtonInactive = new Texture("PlayUnselected.png");
         exitButtonActive = new Texture("ExitSelected.png");
         exitButtonInactive = new Texture("ExitUnselected.png");
-        optionsButtonActive = new Texture("PlaySelected.png");
-        optionsButtonInactive = new Texture("PlayUnselected.png");
+        // Added code start
+        optionsButtonActive = new Texture("SettingsSelected.png");
+        optionsButtonInactive = new Texture("SettingsUnselected.png");
+        infoButtonActive = new Texture("InfoSelected.png");
+        infoButtonInactive = new Texture("InfoUnselected.png");
+        continueButtonInactive = new Texture("ContinueUnselected.png");
+        continueButtonActive = new Texture("ContinueSelected.png");
+        // Added code end
         logo = new Texture("Title.png");
 
     }
@@ -60,7 +78,7 @@ public class MenuUI extends UI {
         batch.begin();
         scrollingBackground.updateAndRender(delta, batch);
         batch.draw(logo, screenWidth / 2 - LOGO_WIDTH / 2, LOGO_Y, LOGO_WIDTH, LOGO_HEIGHT);
-
+        prefs = Gdx.app.getPreferences("savedData");
         // If the mouse is not hovered over the buttons, draw the unselected buttons
         float x = screenWidth / 2 - PLAY_BUTTON_WIDTH / 2;
         if (
@@ -73,20 +91,43 @@ public class MenuUI extends UI {
         } else {
             batch.draw(playButtonInactive, x, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
         }
-
-        // Otherwise draw the selected buttons
-        x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
-        if (
-                mousePos.x < x + EXIT_BUTTON_WIDTH && mousePos.x > x &&
-                        mousePos.y < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT &&
-                        mousePos.y > EXIT_BUTTON_Y
-        ) {
-            batch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+        // Added code start
+        if (prefs.contains("playerRobustness")) {
+            x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
+            if (
+                    mousePos.x < x + EXIT_BUTTON_WIDTH && mousePos.x > x &&
+                            mousePos.y < EXIT_BUTTON_Y - 120 + EXIT_BUTTON_HEIGHT &&
+                            mousePos.y > EXIT_BUTTON_Y - 120
+            ) {
+                batch.draw(exitButtonActive, x, EXIT_BUTTON_Y - 120, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            } else {
+                batch.draw(exitButtonInactive, x, EXIT_BUTTON_Y - 120, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            }
+            x = screenWidth / 2 - CONTINUE_BUTTON_WIDTH / 2;
+            if (
+                    mousePos.x < x + CONTINUE_BUTTON_WIDTH && mousePos.x > x &&
+                            mousePos.y < CONTINUE_BUTTON_Y + CONTINUE_BUTTON_HEIGHT &&
+                            mousePos.y > CONTINUE_BUTTON_Y
+            ) {
+                batch.draw(continueButtonActive, x, CONTINUE_BUTTON_Y, CONTINUE_BUTTON_WIDTH, CONTINUE_BUTTON_HEIGHT);
+            } else {
+                batch.draw(continueButtonInactive, x, CONTINUE_BUTTON_Y, CONTINUE_BUTTON_WIDTH, CONTINUE_BUTTON_HEIGHT);
+            }
         } else {
-            batch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
+            if (
+                    mousePos.x < x + EXIT_BUTTON_WIDTH && mousePos.x > x &&
+                            mousePos.y < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT &&
+                            mousePos.y > EXIT_BUTTON_Y
+            ) {
+                batch.draw(exitButtonActive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            } else {
+                batch.draw(exitButtonInactive, x, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+            }
         }
 
-        x = screenWidth / 2 - OPTIONS_BUTTON_WIDTH / 2;
+        // Added code start
+        x = 7 * screenWidth / 8 - OPTIONS_BUTTON_WIDTH / 2;
         if (
                 mousePos.x < x + OPTIONS_BUTTON_WIDTH && mousePos.x > x &&
                         mousePos.y < OPTIONS_BUTTON_Y + OPTIONS_BUTTON_HEIGHT &&
@@ -94,6 +135,14 @@ public class MenuUI extends UI {
             batch.draw(optionsButtonActive, x, OPTIONS_BUTTON_Y, OPTIONS_BUTTON_WIDTH, OPTIONS_BUTTON_HEIGHT);
         } else {
             batch.draw(optionsButtonInactive, x, OPTIONS_BUTTON_Y, OPTIONS_BUTTON_WIDTH, OPTIONS_BUTTON_HEIGHT);
+        }
+        x = screenWidth / 8 - INFO_BUTTON_WIDTH / 2;
+        if (mousePos.x < x + INFO_BUTTON_WIDTH && mousePos.x > x &&
+                mousePos.y < INFO_BUTTON_Y + INFO_BUTTON_HEIGHT &&
+                mousePos.y > INFO_BUTTON_Y) {
+            batch.draw(infoButtonActive, x, INFO_BUTTON_Y, INFO_BUTTON_WIDTH, INFO_BUTTON_HEIGHT);
+        } else {
+            batch.draw(infoButtonInactive, x, INFO_BUTTON_Y, INFO_BUTTON_WIDTH, INFO_BUTTON_HEIGHT);
         }
         batch.end();
 
@@ -117,19 +166,41 @@ public class MenuUI extends UI {
         ) {
             // Switch to the choosing state
             GameData.mainMenuState = false;
-            GameData.choosingBoatState = true;
-            GameData.currentUI = new ChoosingUI();
+            GameData.chooseDifficultyState = true;
+            GameData.currentUI = new ChooseDifficultyUI();
+        }
+        // Added code start
+        // If the exit button is clicked, close the game
+        if (prefs.contains("playerRobustness")) {
+            x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
+            if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&
+                    clickPos.y < EXIT_BUTTON_Y - 120 + EXIT_BUTTON_HEIGHT &&
+                    clickPos.y > EXIT_BUTTON_Y - 120
+            ) {
+                Gdx.app.exit();
+            }
+        }
+        else {
+            x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
+            if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&
+                    clickPos.y < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT &&
+                    clickPos.y > EXIT_BUTTON_Y
+            ) {
+                Gdx.app.exit();
+            }
+        }
+        if (prefs.contains("playerRobustness") &&
+                clickPos.x < x + CONTINUE_BUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < CONTINUE_BUTTON_Y + CONTINUE_BUTTON_HEIGHT &&
+                clickPos.y > CONTINUE_BUTTON_Y - 120
+        ) {
+            GameData.mainMenuState = false;
+            GameData.gamePlayState = true;
+            GameData.fromSave = true;
+            GameData.currentUI = new GamePlayUI();
         }
 
-        // If the exit button is clicked, close the game
-        x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
-        if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&
-                clickPos.y < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT &&
-                clickPos.y > EXIT_BUTTON_Y
-        ) {
-            Gdx.app.exit();
-        }
-        x = screenWidth / 2 - OPTIONS_BUTTON_WIDTH / 2;
+        x = 7 * screenWidth / 8 - OPTIONS_BUTTON_WIDTH / 2;
         if (clickPos.x < x + OPTIONS_BUTTON_WIDTH && clickPos.x > x &&
                 clickPos.y < OPTIONS_BUTTON_Y + OPTIONS_BUTTON_HEIGHT &&
                 clickPos.y > OPTIONS_BUTTON_Y) {
@@ -137,6 +208,14 @@ public class MenuUI extends UI {
             GameData.optionsState = true;
             GameData.currentUI = new OptionsUI();
         }
-
+        x = screenWidth / 8 - INFO_BUTTON_WIDTH / 2;
+        if (clickPos.x < x + INFO_BUTTON_WIDTH && clickPos.x > x &&
+                clickPos.y < INFO_BUTTON_Y + INFO_BUTTON_HEIGHT &&
+                clickPos.y > INFO_BUTTON_Y) {
+            GameData.mainMenuState = false;
+            GameData.infoState = true;
+            GameData.currentUI = new InfoUI();
+        }
+        // Added code end
     }
 }

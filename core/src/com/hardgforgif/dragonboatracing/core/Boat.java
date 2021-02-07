@@ -9,8 +9,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
-import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.BodyEditorLoader;
+import com.hardgforgif.dragonboatracing.GameData;
 
 public class Boat {
     // Boat specs
@@ -23,17 +23,18 @@ public class Boat {
     public float current_speed = 20f;
     public float turningSpeed = 0.25f;
     public float targetAngle = 0f;
+    // Added code start
+    public int boatType;
+    // Added code end
 
     public Sprite boatSprite;
     public Texture boatTexture;
     public Body boatBody;
-
-    private TextureAtlas textureAtlas;
-    private Animation animation;
-
     public Lane lane;
     public float leftLimit;
     public float rightLimit;
+    private TextureAtlas textureAtlas;
+    private Animation animation;
 
 
     public Boat(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane) {
@@ -42,24 +43,47 @@ public class Boat {
         this.acceleration = acceleration;
         this.maneuverability = maneuverability;
         turningSpeed *= this.maneuverability / 100;
-
-
+        // Added code start
+        this.boatType = boatType;
+        // Added code end
         boatTexture = new Texture("Boat" + (boatType + 1) + ".png");
 
-        textureAtlas = new TextureAtlas(Gdx.files.internal("Boats/Boat" + (boatType + 1) +  ".atlas"));
-        animation = new Animation(1/15f, textureAtlas.getRegions());
+        textureAtlas = new TextureAtlas(Gdx.files.internal("Boats/Boat" + (boatType + 1) + ".atlas"));
+        animation = new Animation(1 / 15f, textureAtlas.getRegions());
 
         this.lane = lane;
     }
 
+    // Added code start
+    public Boat(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane, float currentSpeed, float stamina) {
+        this.robustness = robustness;
+        this.speed = speed;
+        this.acceleration = acceleration;
+        this.maneuverability = maneuverability;
+        this.current_speed = currentSpeed;
+        this.stamina = stamina;
+        turningSpeed *= this.maneuverability / 100;
+        // Added code start
+        this.boatType = boatType;
+        // Added code end
+        boatTexture = new Texture("Boat" + (boatType + 1) + ".png");
+
+        textureAtlas = new TextureAtlas(Gdx.files.internal("Boats/Boat" + (boatType + 1) + ".atlas"));
+        animation = new Animation(1 / 15f, textureAtlas.getRegions());
+
+        this.lane = lane;
+    }
+    // Added code end
+
     /**
      * Creates a boat body
-     * @param world World to create the body in
-     * @param posX x location of the body, in meters
-     * @param posY y location of the body, in meters
+     *
+     * @param world    World to create the body in
+     * @param posX     x location of the body, in meters
+     * @param posY     y location of the body, in meters
      * @param bodyFile the name of the box2D editor json file for the body fixture
      */
-    public void createBoatBody(World world, float posX, float posY, String bodyFile){
+    public void createBoatBody(World world, float posX, float posY, String bodyFile) {
         boatSprite = new Sprite(boatTexture);
         boatSprite.scale(-0.8f);
 
@@ -89,9 +113,10 @@ public class Boat {
 
     /**
      * Draws the boat on the batch, with animations
+     *
      * @param batch The batch to draw on
      */
-    public void drawBoat(Batch batch){
+    public void drawBoat(Batch batch) {
         batch.begin();
         batch.draw((TextureRegion) animation.getKeyFrame(GameData.currentTimer, true), boatSprite.getX(), boatSprite.getY(), boatSprite.getOriginX(),
                 boatSprite.getOriginY(),
@@ -103,16 +128,16 @@ public class Boat {
     /**
      * Updates the boat's limits in the lane based on it's location
      */
-    public void updateLimits(){
+    public void updateLimits() {
         int i;
-        for (i = 1; i < lane.leftIterator; i++){
+        for (i = 1; i < lane.leftIterator; i++) {
             if (lane.leftBoundry[i][0] > boatSprite.getY() + (boatSprite.getHeight() / 2)) {
                 break;
             }
         }
         leftLimit = lane.leftBoundry[i - 1][1];
 
-        for (i = 1; i < lane.rightIterator; i++){
+        for (i = 1; i < lane.rightIterator; i++) {
             if (lane.rightBoundry[i][0] > boatSprite.getY() + (boatSprite.getHeight() / 2)) {
                 break;
             }
@@ -120,17 +145,17 @@ public class Boat {
         rightLimit = lane.rightBoundry[i - 1][1];
     }
 
-    public float[] getLimitsAt(float yPosition){
+    public float[] getLimitsAt(float yPosition) {
         float[] lst = new float[2];
         int i;
-        for (i = 1; i < lane.leftIterator; i++){
+        for (i = 1; i < lane.leftIterator; i++) {
             if (lane.leftBoundry[i][0] > yPosition) {
                 break;
             }
         }
         lst[0] = lane.leftBoundry[i - 1][1];
 
-        for (i = 1; i < lane.rightIterator; i++){
+        for (i = 1; i < lane.rightIterator; i++) {
             if (lane.rightBoundry[i][0] > yPosition) {
                 break;
             }
@@ -141,9 +166,10 @@ public class Boat {
 
     /**
      * Checks if the boat finished the race
+     *
      * @return True if the boat passed the finish line, false otherwise
      */
-    public boolean hasFinished(){
+    public boolean hasFinished() {
         if (boatSprite.getY() + boatSprite.getHeight() / 2 > 9000f)
             return true;
         return false;
@@ -152,8 +178,8 @@ public class Boat {
     /**
      * Moves the boat forward, based i=on it's rotation
      */
-    public void moveBoat(){
-        current_speed += 0.15f * (acceleration/90)  * (stamina/100);
+    public void moveBoat() {
+        current_speed += 0.15f * (acceleration / 90) * (stamina / 100);
         if (current_speed > speed)
             current_speed = speed;
         if (stamina < 70f && current_speed > speed * 0.8f)
@@ -169,7 +195,7 @@ public class Boat {
         // First we need to calculate the position of the player's head (the front of the boat)
         // So we can move him based on this and not the center of the boat
         Vector2 boatHeadPos = new Vector2();
-        float radius = boatSprite.getHeight()/2;
+        float radius = boatSprite.getHeight() / 2;
         boatHeadPos.set(originX + radius * MathUtils.cosDeg(boatSprite.getRotation() + 90),
                 originY + radius * MathUtils.sinDeg(boatSprite.getRotation() + 90));
 
@@ -207,9 +233,10 @@ public class Boat {
 
     /**
      * Rotate the boat until it reaches the given angle, based on it's turning speed and stamina
+     *
      * @param angle angle to rotate to
      */
-    public void rotateBoat(float angle){
+    public void rotateBoat(float angle) {
         // Calculate the difference between the target angle and the current rotation of the boat
         float angleDifference = angle - boatBody.getAngle() * MathUtils.radDeg;
 
