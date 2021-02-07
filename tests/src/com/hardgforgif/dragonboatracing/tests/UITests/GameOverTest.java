@@ -5,13 +5,14 @@ import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.UI.ChooseDifficultyUI;
 import com.hardgforgif.dragonboatracing.UI.GameOverUI;
 import com.hardgforgif.dragonboatracing.tests.GdxTestRunner;
+import com.hardgforgif.dragonboatracing.tests.TestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(GdxTestRunner.class)
-public class GameOverTest {
+public class GameOverTest extends TestBase {
 
     @Test
     public void clickingExitsUI() {

@@ -6,13 +6,14 @@ import com.hardgforgif.dragonboatracing.UI.ChooseDifficultyUI;
 import com.hardgforgif.dragonboatracing.UI.ChoosingUI;
 import com.hardgforgif.dragonboatracing.UI.GamePlayUI;
 import com.hardgforgif.dragonboatracing.tests.GdxTestRunner;
+import com.hardgforgif.dragonboatracing.tests.TestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(GdxTestRunner.class)
-public class ChooseDifficultyUITest {
+public class ChooseDifficultyUITest extends TestBase {
 
     //constants regarding the button positioning
     int SCREEN_WIDTH = 1000;
