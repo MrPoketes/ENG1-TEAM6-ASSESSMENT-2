@@ -195,7 +195,20 @@ public class Map {
         }
 
         // Iterate through the bodies marked to be damaged after a collision
+        //Added code start
+        //Under rare circumstances a boat can hit an obstacle more than once in a single physics update.
+        //We keep a list of bodies that have already been hit to avoid this.
+        ArrayList<Body> processedBodies = new ArrayList<>();
+        //Added code end
         for (Body body : toUpdateHealth) {
+            //Added code start
+            if (processedBodies.contains(body)) {
+                continue;
+            }
+            else {
+                processedBodies.add(body);
+            }
+            //Added code end
             // if it's the player body
             if (player.boatBody == body && !player.hasFinished()) {
                 // Reduce the health and the speed

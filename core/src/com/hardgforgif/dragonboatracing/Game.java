@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.hardgforgif.dragonboatracing.UI.GamePlayUI;
 import com.hardgforgif.dragonboatracing.UI.MenuUI;
 import com.hardgforgif.dragonboatracing.UI.ResultsUI;
+import com.hardgforgif.dragonboatracing.UI.UI;
 import com.hardgforgif.dragonboatracing.core.*;
 
 import java.util.ArrayList;
@@ -228,7 +229,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     break;
 
                 case Running:
-                    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && !GameData.showResultsState) {
                         state = State.Paused;
                     }
                     // Added code end
@@ -351,8 +352,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
             // If we're coming from the result screen, then we need to advance to the next leg
             if (GameData.showResultsState) {
                 GameData.currentLeg += 1;
-                // If the game is from a save file, we need to save the new leg to the file
-                // And we need to reset the position of all boats.
                 if (GameData.fromSave) {
                     prefs.putInteger("currentLeg", GameData.currentLeg);
                     GameData.fromSave = false;
@@ -542,6 +541,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
     public void saveGame() {
         prefs = Gdx.app.getPreferences("savedData");
+        prefs.clear();
         // Saving players data
         prefs.putFloat("playerRobustness", player.robustness);
         prefs.putFloat("playerSpeed", player.speed);

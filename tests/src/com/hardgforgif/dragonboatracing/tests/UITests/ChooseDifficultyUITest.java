@@ -63,7 +63,6 @@ public class ChooseDifficultyUITest {
         GameData.currentUI = testUI;
 
         assertFalse(GameData.currentUI.getClass() == ChoosingUI.class);
-        assertFalse(GameData.difficultyChanged == true);
         assertFalse(GameData.chooseDifficultyState == false);
         assertFalse(GameData.choosingBoatState == true);
         //Create a click position at a point within the button's area (in this case, exactly central).
@@ -76,7 +75,6 @@ public class ChooseDifficultyUITest {
         assertTrue(clickPosition.y > 100);
         //Check changes have been made.
         assertTrue(GameData.currentUI.getClass() == ChoosingUI.class);
-        assertTrue(GameData.difficultyChanged == true);
         assertTrue(GameData.chooseDifficultyState == false);
         assertTrue(GameData.choosingBoatState == true);
     }

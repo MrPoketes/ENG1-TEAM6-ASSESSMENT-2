@@ -6,6 +6,7 @@ import com.hardgforgif.dragonboatracing.core.Boat;
 import com.hardgforgif.dragonboatracing.core.Lane;
 import com.hardgforgif.dragonboatracing.core.Obstacle;
 import com.hardgforgif.dragonboatracing.tests.GdxTestRunner;
+import com.hardgforgif.dragonboatracing.tests.TestBase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,7 @@ public class SimpleCollisionTest {
     boolean passTest = false;
 
     @Test
-    public void BoatCollidesWithObstacle() {
+    public void BoatCollidesWithObstacle(){
         /*
         Create a box2d world, to put the objects in.
         Add a collision handler that sets a flag to pass the test if a collision occurs.
@@ -44,19 +45,23 @@ public class SimpleCollisionTest {
         Boat boat = new Boat(120, 110, 100, 80, 0, laneMock, 0, 120f);
         boat.createBoatBody(world, 0, 0, "Boat1.json");
         Obstacle obstacle = new Obstacle("Obstacles/Obstacle1.png");
-        obstacle.createObstacleBody(world, 0, 200, "Obstacles/Obstacle1.json", 0f);
+        obstacle.createObstacleBody(world, 0, 2, "Obstacles/Obstacle1.json", 0f);
 
+        //Check that the boat isn't starting inside the obstacle.
+        world.step(1f / 60f, 6, 2);
         assertFalse(passTest);
 
-        for (int i = 0; i <= 10000; i++) {
+        //Move the boat forward for a while.
+        for (int i = 0; i <= 60*300; i++) {
             world.step(1f / 60f, 6, 2);
             boat.moveBoat();
         }
+        System.out.println("x: " + boat.boatBody.getPosition().x + " y: " + boat.boatBody.getPosition().y);
+        System.out.println("x: " + obstacle.obstacleBody.getPosition().x + " y: " + obstacle.obstacleBody.getPosition().y);
 
         assertTrue(passTest);
     }
 
-    @Ignore
     @Test
     public void BoatDamagedByObstacle() {
         /*
