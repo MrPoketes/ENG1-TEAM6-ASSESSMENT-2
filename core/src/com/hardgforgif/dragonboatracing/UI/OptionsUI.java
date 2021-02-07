@@ -27,11 +27,11 @@ public class OptionsUI extends UI {
 
     private static final int WASDBUTTON_WIDTH = 100;
     private static final int WASDBUTTON_HEIGHT = 50;
-    private static final int WASDBUTTON_Y = 350;
+    private static final int WASDBUTTON_Y = 450;
 
     private static final int ARROWKEYSBUTTON_WIDTH = 100;
-    private static final int ARROWKEYSBUTTON_HEIGHT =50;
-    private static final int ARROWKEYSBUTTON_Y = 350;
+    private static final int ARROWKEYSBUTTON_HEIGHT = 50;
+    private static final int ARROWKEYSBUTTON_Y = 450;
 
 
     Texture plusButton;
@@ -98,7 +98,7 @@ public class OptionsUI extends UI {
         //drawing WASD and Arrow key buttons
         x = 2 * screenWidth / 5 - WASDBUTTON_WIDTH / 2;
         batch.draw(WASDButton, x, WASDBUTTON_Y, WASDBUTTON_WIDTH, WASDBUTTON_HEIGHT);
-        WASD.draw(batch, "WASD", x + 20, WASDBUTTON_Y + 30 );
+        WASD.draw(batch, "WASD", x + 20, WASDBUTTON_Y + 30);
 
         x = 3 * screenWidth / 5 - ARROWKEYSBUTTON_WIDTH / 2;
         batch.draw(ArrowKeysButton, x, ARROWKEYSBUTTON_Y, ARROWKEYSBUTTON_WIDTH, ARROWKEYSBUTTON_HEIGHT);
@@ -159,7 +159,7 @@ public class OptionsUI extends UI {
                 clickPos.y > WASDBUTTON_Y) {
             WASD.setColor(Color.WHITE);
             Arrow.setColor(Color.BLACK);
-            GameData.switchControls= false;
+            GameData.switchControls = false;
         }
         x = 3 * screenWidth / 5 - ARROWKEYSBUTTON_WIDTH / 2;
         if (clickPos.x < x + ARROWKEYSBUTTON_WIDTH && clickPos.x > x &&
