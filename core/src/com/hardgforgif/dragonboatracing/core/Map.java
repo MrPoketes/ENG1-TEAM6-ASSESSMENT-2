@@ -71,13 +71,18 @@ public class Map {
         MapProperties prop = tiledMap.getProperties();
         mapWidth = prop.get("width", Integer.class);
         mapHeight = prop.get("height", Integer.class);
-
         unitScale = screenWidth / mapWidth / 32f;
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, unitScale);
 
         // Added code start
         world = new World(new Vector2(0f, 0f), true);
         createContactListener();
+
+        createMapCollisions("CollisionLayerLeft");
+        createMapCollisions("CollisionLayerRight");
+
+        // Calculate the ratio between pixels, meters and tiles
+        GameData.TILES_TO_METERS = getTilesToMetersRatio();
+        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
         if (gameDifficulty.equals("easy")) {
             nrObstacles = 20;
@@ -423,6 +428,12 @@ public class Map {
      * Renders the map on the screen
      */
     public void renderMap(OrthographicCamera camera, Batch batch) {
+        // Modified code start
+        // This was previously part of the constructor, but was moved so Maps could be created in the testing environment.
+        if (tiledMapRenderer == null) {
+            tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, unitScale);
+        }
+        // Modified code end
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
         batch.begin();

@@ -25,14 +25,6 @@ public class OptionsUI extends UI {
     private static final int BACK_BUTTON_HEIGHT = 100;
     private static final int BACK_BUTTON_Y = 50;
 
-    private static final int WINDOWED_BUTTON_WIDTH = 100;
-    private static final int WINDOWED_BUTTON_HEIGHT = 50;
-    private static final int WINDOWED_BUTTON_Y = 450;
-
-    private static final int FULLSCREEN_BUTTON_WIDTH = 100;
-    private static final int FULLSCREEN_BUTTON_HEIGHT = 50;
-    private static final int FULLSCREEN_BUTTON_Y = 450;
-
     private static final int WASDBUTTON_WIDTH = 100;
     private static final int WASDBUTTON_HEIGHT = 50;
     private static final int WASDBUTTON_Y = 350;
@@ -46,10 +38,6 @@ public class OptionsUI extends UI {
     Texture minusButton;
 
     Texture backButton;
-
-    // Windowed and fullscreen button textures
-    Texture windowedButton;
-    Texture fullscreenButton;
 
     Texture WASDButton;
     Texture ArrowKeysButton;
@@ -71,9 +59,6 @@ public class OptionsUI extends UI {
         minusButton = new Texture("MinusButton.png");
 
         backButton = new Texture("BackButton.png");
-
-        windowedButton = new Texture("testPlusButton.png");
-        fullscreenButton = new Texture("testMinusButton.png");
 
         WASDButton = new Texture("Background.png");
         ArrowKeysButton = new Texture("Background.png");
@@ -107,12 +92,6 @@ public class OptionsUI extends UI {
         x = screenWidth / 2 - PLUS_BUTTON_WIDTH / 2;
         volume.draw(batch, String.valueOf(Math.round(GameData.musicVolume * 100)), x, PLUS_BUTTON_Y + 40);
         volumeLabel.draw(batch, "Volume", x - 30, PLUS_BUTTON_Y + 100);
-
-        // Drawing screen resolution buttons
-        x = 2 * screenWidth / 5 - FULLSCREEN_BUTTON_WIDTH / 2;
-        batch.draw(fullscreenButton, x, FULLSCREEN_BUTTON_Y, FULLSCREEN_BUTTON_WIDTH, FULLSCREEN_BUTTON_HEIGHT);
-        x = 3 * screenWidth / 5 - WINDOWED_BUTTON_WIDTH / 2;
-        batch.draw(windowedButton, x, WINDOWED_BUTTON_Y, WINDOWED_BUTTON_WIDTH, WINDOWED_BUTTON_HEIGHT);
 
         batch.draw(backButton, 100f, BACK_BUTTON_Y, BACK_BUTTON_WIDTH, BACK_BUTTON_HEIGHT);
 
@@ -174,24 +153,6 @@ public class OptionsUI extends UI {
             GameData.currentUI = new MenuUI();
         }
 
-        // Input handlers for windowed/fullscreen buttons
-
-        x = 2 * screenWidth / 5 - FULLSCREEN_BUTTON_HEIGHT / 2;
-        if (clickPos.x < x + FULLSCREEN_BUTTON_WIDTH && clickPos.x > x &&
-                clickPos.y < FULLSCREEN_BUTTON_Y + FULLSCREEN_BUTTON_HEIGHT &&
-                clickPos.y > FULLSCREEN_BUTTON_Y) {
-            // Doesn't work well
-            GameData.fullscreen = true;
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        }
-
-        x = 3 * screenWidth / 5 - WINDOWED_BUTTON_WIDTH / 2;
-        if (clickPos.x < x + WINDOWED_BUTTON_WIDTH && clickPos.x > x &&
-                clickPos.y < WINDOWED_BUTTON_Y + WINDOWED_BUTTON_HEIGHT &&
-                clickPos.y > WINDOWED_BUTTON_Y) {
-            GameData.fullscreen = false;
-            Gdx.graphics.setWindowedMode(1280, 720);
-        }
         x = 2 * screenWidth / 5 - WASDBUTTON_HEIGHT / 2;
         if (clickPos.x < x + WASDBUTTON_WIDTH && clickPos.x > x &&
                 clickPos.y < WASDBUTTON_Y + WASDBUTTON_HEIGHT &&

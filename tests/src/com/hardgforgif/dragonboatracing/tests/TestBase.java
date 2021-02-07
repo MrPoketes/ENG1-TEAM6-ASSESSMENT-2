@@ -1,15 +1,23 @@
 package com.hardgforgif.dragonboatracing.tests;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
+import static org.mockito.Mockito.when;
 
 /**
  * A base class which all tests inherit from.
@@ -18,18 +26,25 @@ import java.util.Scanner;
  */
 public class TestBase {
 
-    private Preferences preferences = Gdx.app.getPreferences("savedData");
+    public Preferences preferences = Gdx.app.getPreferences("savedData");
     private Map oldPreferences;
 
     /**
      * Stores and clears the preferences, so the testing environment is unaffected by whatever preferences are currently
      * set on the testing machine.
+     *
+     * Also spoofs some gdx functions to give consistent results.
      */
     @Before
     public void before(){
         oldPreferences = preferences.get();
         preferences.clear();
         preferences.flush();
+
+        Gdx.gl20 = Mockito.mock(GL20.class);
+        Gdx.gl30 = Mockito.mock(GL30.class);
+        Gdx.graphics = Mockito.mock(Graphics.class);
+        when(Gdx.graphics.getDeltaTime()).thenReturn(1/60f);
     }
 
     /**
@@ -38,8 +53,8 @@ public class TestBase {
      */
     public void setPreferences(String filepath) throws FileNotFoundException {
         preferences.clear();
-        File myObj = new File("tests/preferences/" + filepath);
-        Scanner myReader = new Scanner(myObj);
+        File file = new File("./preferences/" + filepath);
+        Scanner myReader = new Scanner(file);
         while (myReader.hasNextLine()) {
             String line = myReader.nextLine();
             /*
@@ -48,8 +63,8 @@ public class TestBase {
             Any line that does not match this is ignored.
              */
             if (line.startsWith("<entry key=\"")) {
-                String key = line.substring(11, line.substring(12).indexOf("\""));
-                String value = line.substring(line.indexOf(">"), line.substring(1).indexOf("<"));
+                String key = line.substring(12, line.substring(12).indexOf("\"")+12);
+                String value = line.substring(line.indexOf(">")+1, line.substring(1).indexOf("<")+1);
                 /*
                 We store three types of values:
                 Integer, Float and String

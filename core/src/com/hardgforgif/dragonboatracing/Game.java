@@ -397,21 +397,13 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         // Initialize the map
         map[newLegNumber] = new Map("Map1/Map1.tmx", Gdx.graphics.getWidth(), GameData.gameDifficulty);
 
-        // Calculate the ratio between pixels, meters and tiles
-        GameData.TILES_TO_METERS = map[newLegNumber].getTilesToMetersRatio();
-        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
-
-        // Create the collision with the land
         // Modified code start
-        map[newLegNumber].createMapCollisions("CollisionLayerLeft");
-        map[newLegNumber].createMapCollisions("CollisionLayerRight");
-
         // Create the lanes, and the obstacles in the physics game world
         map[newLegNumber].createLanes();
-        // Modified code end
 
         // Create the finish line
         map[newLegNumber].createFinishLine("finishLine.png");
+        // Modified code end
     }
     // Modified code end
 
@@ -671,18 +663,8 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         // Initialize the map
         map[i] = new Map("Map1/Map1.tmx", width, prefs.getString("gameDifficulty"));
 
-        // Calculate the ratio between pixels, meters and tiles
-        GameData.TILES_TO_METERS = map[i].getTilesToMetersRatio();
-        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
-
-        // Create the collision with the land
-        // Modified code start
-        map[i].createMapCollisions("CollisionLayerLeft");
-        map[i].createMapCollisions("CollisionLayerRight");
-
         // Create the lanes, and the obstacles in the physics game world
         map[i].createLanesFromLoad(i);
-        // Modified code end
 
         // Create the finish line
         map[i].createFinishLine("finishLine.png");
