@@ -37,7 +37,7 @@ public class ChooseDifficultyUITest extends TestBase {
     }
 
     @Test
-    public void clickingDifficultyButtonsWorks() {
+    public void TEST_FR_SELECTDIFFICULTY_UI() {
         /*
         Directly set the gameDifficulty in GameData to something like "test".
         Create a ChooseDifficultyUI, and getInput() one of the buttons.
@@ -52,7 +52,7 @@ public class ChooseDifficultyUITest extends TestBase {
     }
 
     @Test
-    public void clickingPlayButtonWorks() {
+    public void TEST_GOTO_CHOOSING_UI() {
         /*
         Create a ChooseDifficultyUI.
         getInput() the play button.
