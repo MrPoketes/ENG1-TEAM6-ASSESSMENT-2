@@ -14,8 +14,10 @@ public class AI extends Boat {
     private boolean isTurning = false;
     private float detectedObstacleYPos;
 
+    // Modified code start
     public AI(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane) {
         super(robustness, speed, acceleration, maneuverability, boatType, lane);
+        // Modified code end
         this.robustness *= GameData.difficulty[GameData.currentLeg];
         this.stamina *= GameData.difficulty[GameData.currentLeg];
         this.maneuverability *= GameData.difficulty[GameData.currentLeg];

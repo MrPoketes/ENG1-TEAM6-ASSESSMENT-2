@@ -179,14 +179,13 @@ public class CollisionTest extends TestBase {
         assertEquals(120f, player.speed);
     }
 
-    @Ignore
     @Test
     public void TEST_FR_POWER_UP_ITEMS_ACCELERATION() {
         /*
         Use a mocked save file to load a map with just a boat and an acceleration powerup (same positions as preliminary test).
         Do exact same moveBoat() actions to collide boat into powerup.
         First check that the boat's speed and acceleration have increased, and the powerup is removed.
-        Then progress the scheduler time by 15 seconds to
+        Then progress the game 5 seconds and check that the speed and acceleration have returned to normal.
          */
         Object[] objects = loadSave("singleAccelerationPowerup");
         Map map = (Map) objects[0];
@@ -207,7 +206,11 @@ public class CollisionTest extends TestBase {
         assertEquals(140f, player.speed);
         assertEquals(150f, player.acceleration);
 
-        //wait 15 seconds somehow
+        //Wait a further 5 seconds.
+        for (int i = 0; i <= 60*5; i++) {
+            map.stepWorld(player, opponents);
+            player.moveBoat();
+        }
 
         assertEquals(110f, player.speed);
         assertEquals(100f, player.acceleration);

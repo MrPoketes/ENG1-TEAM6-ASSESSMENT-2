@@ -57,11 +57,11 @@ public class GameData {
     public static int currentLeg = 0;
     public static float currentTimer = 0f;
     // Difficulty constants for the AI
-    public static float[] difficulty = new float[]{0.92f, 0.97f, 1f};
+    public static float[] difficulty = new float[]{1f, 1.05f, 1.1f};
 
     // Added code start
     // Music volume range [0,1]
-    public static float musicVolume = 0f;
+    public static float musicVolume = 0.5f;
     // Variable for reducing time, if boat picked up time reduction powerUp
     public static float[] timeReductions = {0.0f, 0.0f, 0.0f, 0.0f};
     // Variable

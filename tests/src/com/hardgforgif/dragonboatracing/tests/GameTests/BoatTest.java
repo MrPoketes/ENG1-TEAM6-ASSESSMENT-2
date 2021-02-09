@@ -150,4 +150,112 @@ public class BoatTest extends TestBase {
         Assert.assertNotEquals(0, GameData.penalties[0]);
     }
 
+    @Test
+    public void TEST_FR_STAMINA() {
+        /*
+        Load a map with a player's boat.
+        Step the world a bit - check that the player's stamina always decreases or stays the same after each step.
+        At the end, check that the player's stamina has decreased, but not below 25.
+         */
+        Object[] objects = loadSave("emptyRiver");
+        Map map = (Map) objects[0];
+        Player player = (Player) objects[1];
+        AI[] opponents = (AI[]) objects[2];
+        boolean[] NO_KEYS_PRESSED = {false, false, false, false};
+
+        for (int i = 0; i < 60*5; i++) {
+            float previousStamina = player.stamina;
+            map.stepWorld(player, opponents);
+            player.updatePlayer(NO_KEYS_PRESSED, Gdx.graphics.getDeltaTime());
+            assertTrue(player.stamina <= previousStamina);
+        }
+
+        assertTrue(player.stamina < 120f);
+        assertTrue(player.stamina >= 25f);
+    }
+
+    private void testSpeed() {
+        World world;
+        world = new World(new Vector2(0f, 0f), true);
+        Player fastBoat = new Player(100f, 200f, 100f, 100f, 0, laneMock, 0f, 120f);
+        fastBoat.createBoatBody(world, 0, 0, "Boat1.json");
+        Player slowBoat = new Player(100f, 50f, 100f, 100f, 0, laneMock, 0f, 120f);
+        slowBoat.createBoatBody(world, 10, 0, "Boat1.json");
+
+        //Move the boat forward for a while.
+        for (int i = 0; i <= 300*60; i++) {
+            world.step(1f / 60f, 6, 2);
+            slowBoat.updatePlayer(NEITHER, Gdx.graphics.getDeltaTime());
+            fastBoat.updatePlayer(NEITHER, Gdx.graphics.getDeltaTime());
+        }
+        assertTrue(slowBoat.current_speed < fastBoat.current_speed);
+    }
+
+    private void testAcceleration() {
+        World world;
+        world = new World(new Vector2(0f, 0f), true);
+        Player fastBoat = new Player(100f, 100f, 200f, 100f, 0, laneMock, 0f, 120f);
+        fastBoat.createBoatBody(world, 0, 0, "Boat1.json");
+        Player slowBoat = new Player(100f, 100f, 50f, 100f, 0, laneMock, 0f, 120f);
+        slowBoat.createBoatBody(world, 10, 0, "Boat1.json");
+
+        //Move the boat by one step:
+        world.step(1f / 60f, 6, 2);
+        slowBoat.updatePlayer(NEITHER, Gdx.graphics.getDeltaTime());
+        fastBoat.updatePlayer(NEITHER, Gdx.graphics.getDeltaTime());
+        world.step(1f / 60f, 6, 2);
+        assertTrue(slowBoat.current_speed < fastBoat.current_speed);
+    }
+
+    private void testManeuverability() {
+        World world;
+        world = new World(new Vector2(0f, 0f), true);
+        Player fastBoat = new Player(100f, 100f, 100f, 200f, 0, laneMock, 0f, 120f);
+        fastBoat.createBoatBody(world, 0, 0, "Boat1.json");
+        Player slowBoat = new Player(100f, 100f, 100f, 50f, 0, laneMock, 0f, 120f);
+        slowBoat.createBoatBody(world, 10, 0, "Boat1.json");
+
+        //Move the boat by one step:
+        world.step(1f / 60f, 6, 2);
+        slowBoat.updatePlayer(LEFT, Gdx.graphics.getDeltaTime());
+        fastBoat.updatePlayer(LEFT, Gdx.graphics.getDeltaTime());
+        world.step(1f / 60f, 6, 2);
+        assertTrue(slowBoat.boatBody.getAngle() < fastBoat.boatBody.getAngle());
+    }
+
+    private void testStamina() {
+        World world;
+        world = new World(new Vector2(0f, 0f), true);
+        Player fastBoat = new Player(100f, 100f, 100f, 100f, 0, laneMock, 0f, 200f);
+        fastBoat.createBoatBody(world, 0, 0, "Boat1.json");
+        Player slowBoat = new Player(100f, 100f, 100f, 100f, 0, laneMock, 0f, 50f);
+        slowBoat.createBoatBody(world, 10, 0, "Boat1.json");
+
+        //Move the boat by one step:
+        world.step(1f / 60f, 6, 2);
+        slowBoat.updatePlayer(LEFT, Gdx.graphics.getDeltaTime());
+        fastBoat.updatePlayer(LEFT, Gdx.graphics.getDeltaTime());
+        world.step(1f / 60f, 6, 2);
+        assertTrue(slowBoat.boatBody.getAngle() < fastBoat.boatBody.getAngle());
+    }
+
+    @Test
+    public void TEST_FR_STATS() {
+        /*
+        Create 8 boats, with high and low speed, acceleration and maneuverability and stamina.
+        Ensure that the boat with higher stats performs better at it's stat than the one with lower stats.
+         */
+
+        // Since the worlds we use have no lanes (and lanes can only exist in a map),
+        // we need to create a believable mock so the boat doesn't error.
+        laneMock.leftIterator = 0;
+        laneMock.leftBoundry = new float[2][2];
+        laneMock.rightIterator = 0;
+        laneMock.rightBoundry = new float[2][2];
+        testSpeed();
+        testAcceleration();
+        testManeuverability();
+        testStamina();
+    }
+
 }

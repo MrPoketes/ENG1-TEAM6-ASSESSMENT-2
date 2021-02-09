@@ -21,6 +21,7 @@ import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.UI.ResultsUI;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +61,15 @@ public class Map {
     private ArrayList<Body> toIncreaseSpeed = new ArrayList<>();
     private ArrayList<Body> toReduceTime = new ArrayList<>();
     private ArrayList<Body> toIncreaseAcceleration = new ArrayList<>();
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private class BodyFloatPair {
+        float floatValue = 5f;
+        Body body;
+
+        public BodyFloatPair(Body body) {
+            this.body = body;
+        }
+    }
+    private ArrayList<BodyFloatPair> toDecreaseAcceleration = new ArrayList<>();
     // Added code end
 
     public Map(String tmxFile, float width, String gameDifficulty) {
@@ -357,14 +366,14 @@ public class Map {
         }
         /**
          *  Iterate through the bodies marked to increase acceleration.
-         *  We create a scheduler to run after 5 seconds and remove the effect.
+         *  We add the body to a list to have the effect reversed in 5 seconds.
          */
 
         for (Body body : toIncreaseAcceleration) {
             if (player.boatBody == body && !player.hasFinished()) {
                 player.speed += 30f;
                 player.acceleration += 50f;
-                scheduler.schedule(decreaseAccelerationTaskPlayer, 5, TimeUnit.SECONDS);
+                toDecreaseAcceleration.add(new BodyFloatPair(body));
             }
             // If the AI picked up the powerUp
             else {
@@ -373,11 +382,37 @@ public class Map {
                         GameData.reduceAIAccelerationList.push(i);
                         opponents[i].speed += 30f;
                         opponents[i].acceleration += 50f;
-                        scheduler.schedule(decreaseAccelerationTaskAI, 5, TimeUnit.SECONDS);
+                        toDecreaseAcceleration.add(new BodyFloatPair(body));
                     }
                 }
             }
         }
+
+        ListIterator<BodyFloatPair> iter = toDecreaseAcceleration.listIterator();
+        while(iter.hasNext()){
+            BodyFloatPair bodyFloatPair = iter.next();
+            if (bodyFloatPair.floatValue <= 0f) {
+                if (player.boatBody == bodyFloatPair.body && !player.hasFinished()) {
+                    player.speed -= 30f;
+                    player.acceleration -= 50f;
+                }
+                // If the AI picked up the powerUp
+                else {
+                    for (int i = 0; i < 3; i++) {
+                        if (opponents[i].boatBody == bodyFloatPair.body && !opponents[i].hasFinished()) {
+                            opponents[i].speed -= 30f;
+                            opponents[i].acceleration -= 50f;
+                        }
+                    }
+                }
+                iter.remove();
+            }
+            else {
+                bodyFloatPair.floatValue -= Gdx.graphics.getDeltaTime();
+            }
+        }
+
+
         // Iterate through the bodies marked to increase speed
         for (Body body : toIncreaseSpeed) {
             if (player.boatBody == body && !player.hasFinished()) {

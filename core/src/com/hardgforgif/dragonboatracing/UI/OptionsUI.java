@@ -130,6 +130,11 @@ public class OptionsUI extends UI {
                 // For some reason setVolume(GameData.musicVolume - 0.1f) doesn't work
                 GameData.music.setVolume(GameData.musicVolume);
             }
+            //Special handling to avoid floating point imprecision.
+            else if (GameData.musicVolume > 0) {
+                GameData.musicVolume = 0f;
+                GameData.music.setVolume(GameData.musicVolume);
+            }
 
         }
 

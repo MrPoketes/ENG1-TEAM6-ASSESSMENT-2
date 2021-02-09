@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.UI.ChooseDifficultyUI;
 import com.hardgforgif.dragonboatracing.UI.ChoosingUI;
-import com.hardgforgif.dragonboatracing.UI.GamePlayUI;
 import com.hardgforgif.dragonboatracing.tests.GdxTestRunner;
 import com.hardgforgif.dragonboatracing.tests.TestBase;
 import org.junit.Test;

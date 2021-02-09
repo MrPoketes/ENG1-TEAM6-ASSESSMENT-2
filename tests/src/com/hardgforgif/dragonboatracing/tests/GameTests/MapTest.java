@@ -1,6 +1,7 @@
 package com.hardgforgif.dragonboatracing.tests.GameTests;
 
 import com.badlogic.gdx.Gdx;
+import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.core.AI;
 import com.hardgforgif.dragonboatracing.core.Map;
 import com.hardgforgif.dragonboatracing.core.Player;
@@ -95,6 +96,23 @@ public class MapTest extends TestBase {
             player.updatePlayer(NO_KEYS_PRESSED, Gdx.graphics.getDeltaTime());
         }
         assertTrue(player.hasFinished());
+    }
+
+    @Test
+    public void TEST_FR_SAVE_AND_LOAD_LOADING() {
+        Object[] objects = loadSave("knownSave");
+        Map map = (Map) objects[0];
+
+        assertEquals(0, map.lanes[0].obstacles[0].posX, 0.1);
+        assertEquals(2, map.lanes[0].obstacles[0].posY, 0.1);
+        assertEquals("Obstacles/Obstacle5.png", map.lanes[0].obstacles[0].textureName);
+        assertEquals("Obstacles/Obstacle5.json", map.lanes[0].obstacles[0].bodyFile);
+
+        assertEquals(0, map.lanes[0].powerUps[0].posX, 0.1);
+        assertEquals(2, map.lanes[0].powerUps[0].posY, 0.1);
+        assertEquals("PowerUps/PowerUp1.png", map.lanes[0].powerUps[0].textureName);
+        assertEquals("PowerUps/PowerUp1.json", map.lanes[0].powerUps[0].bodyFile);
+        assertEquals("healthBoost", map.lanes[0].powerUps[0].powerupName);
     }
 
 }
