@@ -267,6 +267,25 @@ public class Map {
         // Advance the game world physics
         world.step(1f / 60f, 6, 2);
     }
+
+    /**
+     * This method checks the position of all the boats to add penalties if necessary
+     */
+    public void updatePenalties(Player player, AI[] opponents) {
+        // Update the penalties for the player, if he is outside his lane
+        float boatCenter = player.boatSprite.getX() + player.boatSprite.getWidth() / 2;
+        if (!player.hasFinished() && player.robustness > 0 && (boatCenter < player.leftLimit || boatCenter > player.rightLimit)) {
+            GameData.penalties[0] += Gdx.graphics.getDeltaTime();
+        }
+
+        // Update the penalties for the opponents, if they are outside the lane
+        for (int i = 0; i < 3; i++) {
+            boatCenter = opponents[i].boatSprite.getX() + opponents[i].boatSprite.getWidth() / 2;
+            if (!opponents[i].hasFinished() && opponents[i].robustness > 0 && (boatCenter < opponents[i].leftLimit || boatCenter > opponents[i].rightLimit)) {
+                GameData.penalties[i + 1] += Gdx.graphics.getDeltaTime();
+            }
+        }
+    }
     // Modified code end
 
     // Added code start
@@ -489,7 +508,7 @@ public class Map {
      */
     // Added code start
     public void createLanesFromLoad(int mapIndex) {
-        Preferences prefs = Gdx.app.getPreferences("savedData");
+        Preferences prefs = GameData.preferences;
         MapLayer leftLayer = tiledMap.getLayers().get("CollisionLayerLeft");
         MapLayer rightLayer = tiledMap.getLayers().get("Lane1");
 

@@ -15,12 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameOverTest extends TestBase {
 
     @Test
-    public void clickingExitsUI() {
+    public void TEST_GOTO_MAIN_MENU_UI() {
         /*
-        Directly set the gameDifficulty in GameData to something like "test".
-        Create a ChooseDifficultyUI, and getInput() one of the buttons.
-        Check that the difficulty in GameData has been set to the correct value.
-        Repeat for all other buttons.
+        Set the state to GameOver, and create a GameOverUI.
+        Click anywhere on the screen.
+        Test that the game's state has been marked to be reset.
          */
         GameData.mainMenuState = false;
         GameData.GameOverState = true;

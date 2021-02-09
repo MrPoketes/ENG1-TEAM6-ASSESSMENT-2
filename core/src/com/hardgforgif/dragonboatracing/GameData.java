@@ -1,6 +1,7 @@
 package com.hardgforgif.dragonboatracing;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.hardgforgif.dragonboatracing.UI.MenuUI;
 import com.hardgforgif.dragonboatracing.UI.UI;
@@ -69,5 +70,7 @@ public class GameData {
     public static String gameDifficulty = "easy";
     public static boolean switchControls = false;
     public static boolean fromSave = false;
+
+    public static Preferences preferences = Gdx.app.getPreferences("savedData");
     // Added code end
 }

@@ -16,62 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(GdxTestRunner.class)
-public class CollisionTests extends TestBase {
+public class CollisionTest extends TestBase {
 
     Lane laneMock = mock(Lane.class);
     boolean passTest = false;
-
-    /*
-    Takes a filepath to load from.
-    Returns an array of object containing (in order) a player, an array of AI opponents, and a map, loaded from the save.
-
-     */
-    private Object[] loadSave(String filepath) {
-        try {
-            this.setPreferences(filepath);
-        }
-        catch (FileNotFoundException e) {
-            assertTrue(false);
-        }
-        Map map = new Map("Map1/Map1.tmx", 1280f, this.preferences.getString("gameDifficulty"));
-        map.createLanesFromLoad(0);
-
-        Player player = new Player(preferences.getFloat("playerRobustness"),
-                preferences.getFloat("playerSpeed"),
-                preferences.getFloat("playerAcceleration"),
-                preferences.getFloat("playerManeuverability"),
-                preferences.getInteger("playerBoatType"),
-                map.lanes[0],
-                preferences.getFloat("playerCurrentSpeed"),
-                preferences.getFloat("playerStamina"));
-        player.createBoatBody(map.world,
-                preferences.getFloat("playerPosX"),
-                preferences.getFloat("playerPosY"),
-                "Boat1.json");
-        player.boatSprite.setRotation(preferences.getFloat("playerAngle"));
-
-        AI[] opponents = new AI[3];
-        for (int i = 0; i != 3; i++) {
-            float oRobustness = preferences.getFloat("opponent" + i + "Robustness");
-            float oSpeed = preferences.getFloat("opponent" + i + "Speed");
-            float oAcceleration = preferences.getFloat("opponent" + i + "Acceleration");
-            float oManeuverability = preferences.getFloat("opponent" + i + "Maneuverability");
-            int oBoatType = preferences.getInteger("opponent" + i + "BoatType");
-            float oCurrentSpeed = preferences.getFloat("opponent" + i + "CurrentSpeed");
-            float oStamina = preferences.getFloat("opponent" + i + "Stamina");
-            float oPosX = preferences.getFloat("opponent" + i + "PosX");
-            float oPosY = preferences.getFloat("opponent" + i + "PosY");
-            float oAngle = preferences.getFloat("opponent" + i + "Angle");
-            opponents[i] = new AI(oRobustness, oSpeed, oAcceleration, oManeuverability, oBoatType, map.lanes[i + 1], oCurrentSpeed, oStamina);
-            opponents[i].createBoatBody(map.world, oPosX, oPosY, "Boat1.json");
-            opponents[i].boatSprite.setRotation(oAngle);
-        }
-        Object[] returnObjects = new Object[3];
-        returnObjects[0] = map;
-        returnObjects[1] = player;
-        returnObjects[2] = opponents;
-        return returnObjects;
-    }
 
     @Test
     public void BoatCollidesWithObstacle(){

@@ -153,26 +153,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
         }
     }
 
-    /**
-     * This method checks the position of all the boats to add penalties if necessary
-     */
-    private void updatePenalties() {
-        // Update the penalties for the player, if he is outside his lane
-        float boatCenter = player.boatSprite.getX() + player.boatSprite.getWidth() / 2;
-        if (!player.hasFinished() && player.robustness > 0 && (boatCenter < player.leftLimit || boatCenter > player.rightLimit)) {
-            GameData.penalties[0] += Gdx.graphics.getDeltaTime();
-        }
-
-        // Update the penalties for the opponents, if they are outside the lane
-        for (int i = 0; i < 3; i++) {
-            boatCenter = opponents[i].boatSprite.getX() + opponents[i].boatSprite.getWidth() / 2;
-            if (!opponents[i].hasFinished() && opponents[i].robustness > 0 && (boatCenter < opponents[i].leftLimit || boatCenter > opponents[i].rightLimit)) {
-                GameData.penalties[i + 1] += Gdx.graphics.getDeltaTime();
-            }
-        }
-    }
-
-    /**
+     /**
      * This method marks all the boats that haven't finished the race as dnfs
      */
     private void dnfRemainingBoats() {
@@ -237,7 +218,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     // If it's the first iteration in this state, the boats need to be created at their starting positions
                     if (player == null) {
                         // Added code start
-                        prefs = Gdx.app.getPreferences("savedData");
+                        prefs = GameData.preferences;
                         // Check if there is any saved data
                         if (GameData.fromSave && prefs.contains("playerRobustness")) {
                             handleLoadingGame();
@@ -307,7 +288,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
                     // Update the camera at the player's position
                     updateCamera(player);
 
-                    updatePenalties();
+                    //Modified code start
+                    map[GameData.currentLeg].updatePenalties(player, opponents);
+                    //Modified code end
 
                     // Update the standings of each boat
                     updateStandings();
@@ -532,7 +515,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
     }
 
     public void saveGame() {
-        prefs = Gdx.app.getPreferences("savedData");
+        prefs = GameData.preferences;
         prefs.clear();
         // Saving players data
         prefs.putFloat("playerRobustness", player.robustness);
