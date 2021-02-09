@@ -78,7 +78,7 @@ public class MenuUI extends UI {
         batch.begin();
         scrollingBackground.updateAndRender(delta, batch);
         batch.draw(logo, screenWidth / 2 - LOGO_WIDTH / 2, LOGO_Y, LOGO_WIDTH, LOGO_HEIGHT);
-        prefs = Gdx.app.getPreferences("savedData");
+        prefs = GameData.preferences;
         // If the mouse is not hovered over the buttons, draw the unselected buttons
         float x = screenWidth / 2 - PLAY_BUTTON_WIDTH / 2;
         if (
@@ -170,7 +170,8 @@ public class MenuUI extends UI {
             GameData.currentUI = new ChooseDifficultyUI();
         }
         // Added code start
-        // If the exit button is clicked, close the game
+        prefs = GameData.preferences;
+        // If the exit button is clicked, close the game (its position depends on if there's a save file).
         if (prefs.contains("playerRobustness")) {
             x = screenWidth / 2 - EXIT_BUTTON_WIDTH / 2;
             if (clickPos.x < x + EXIT_BUTTON_WIDTH && clickPos.x > x &&

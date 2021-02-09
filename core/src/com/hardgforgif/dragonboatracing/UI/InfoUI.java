@@ -41,11 +41,11 @@ public class InfoUI extends UI {
         Header = "Instructions!";
         InstructionText = "The aim of the game is to race through the river against other opponents.\n"
                         + "While doing so you will need to avoid obstacles which will slow you down. \n" +
-                        "There are also various abilities you can pick up to improve your chances of winning." + "\n"
+                        "There are also various powerups you can pick up to improve your chances of winning." + "\n"
                         + "There will be 3 racing legs where you will get a chance to qualify for the finals" + "\n"
                         + "The top 3 best times will be placed into the final leg!" + "\n" + "\n"
-                        + "The arrow keys or WASD can be used to move the boat forward,backwards, left and" + "\n"
-                        + "Right. The layout of controls can be selected in the option menu" + "\n"
+                        + "The A and D can be used to turn the boat left and right" + "\n"
+                        + "This can be changed to arrow keys in the option menu" + "\n"
                         +"Good luck! Enjoy the racing!";
     }
 

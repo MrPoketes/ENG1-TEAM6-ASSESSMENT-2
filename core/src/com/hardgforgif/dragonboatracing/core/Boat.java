@@ -63,9 +63,7 @@ public class Boat {
         this.current_speed = currentSpeed;
         this.stamina = stamina;
         turningSpeed *= this.maneuverability / 100;
-        // Added code start
         this.boatType = boatType;
-        // Added code end
         boatTexture = new Texture("Boat" + (boatType + 1) + ".png");
 
         textureAtlas = new TextureAtlas(Gdx.files.internal("Boats/Boat" + (boatType + 1) + ".atlas"));
