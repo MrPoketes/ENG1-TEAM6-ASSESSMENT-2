@@ -4,15 +4,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.UI.ChooseDifficultyUI;
 import com.hardgforgif.dragonboatracing.UI.ChoosingUI;
-import com.hardgforgif.dragonboatracing.UI.GamePlayUI;
 import com.hardgforgif.dragonboatracing.tests.GdxTestRunner;
+import com.hardgforgif.dragonboatracing.tests.TestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(GdxTestRunner.class)
-public class ChooseDifficultyUITest {
+public class ChooseDifficultyUITest extends TestBase {
 
     //constants regarding the button positioning
     int SCREEN_WIDTH = 1000;
@@ -36,7 +36,7 @@ public class ChooseDifficultyUITest {
     }
 
     @Test
-    public void clickingDifficultyButtonsWorks() {
+    public void TEST_FR_SELECTDIFFICULTY_UI() {
         /*
         Directly set the gameDifficulty in GameData to something like "test".
         Create a ChooseDifficultyUI, and getInput() one of the buttons.
@@ -51,7 +51,7 @@ public class ChooseDifficultyUITest {
     }
 
     @Test
-    public void clickingPlayButtonWorks() {
+    public void TEST_GOTO_CHOOSING_UI() {
         /*
         Create a ChooseDifficultyUI.
         getInput() the play button.
@@ -63,7 +63,6 @@ public class ChooseDifficultyUITest {
         GameData.currentUI = testUI;
 
         assertFalse(GameData.currentUI.getClass() == ChoosingUI.class);
-        assertFalse(GameData.difficultyChanged == true);
         assertFalse(GameData.chooseDifficultyState == false);
         assertFalse(GameData.choosingBoatState == true);
         //Create a click position at a point within the button's area (in this case, exactly central).
@@ -76,7 +75,6 @@ public class ChooseDifficultyUITest {
         assertTrue(clickPosition.y > 100);
         //Check changes have been made.
         assertTrue(GameData.currentUI.getClass() == ChoosingUI.class);
-        assertTrue(GameData.difficultyChanged == true);
         assertTrue(GameData.chooseDifficultyState == false);
         assertTrue(GameData.choosingBoatState == true);
     }

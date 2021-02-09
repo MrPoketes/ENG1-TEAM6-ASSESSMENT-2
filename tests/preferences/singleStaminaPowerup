@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="gameDifficulty">easy</entry>
+<entry key="currentLeg">0</entry>
+<entry key="currentTime">0.0</entry>
+<entry key="cameraPosY">690.0</entry>
+<entry key="cameraPosX">640.0</entry>
+
+<entry key="noPowerUps3">0</entry>
+<entry key="noPowerUps2">0</entry>
+<entry key="noPowerUps1">0</entry>
+<entry key="noPowerUps0">1</entry>
+
+<entry key="noObstacles0">0</entry>
+<entry key="noObstacles1">0</entry>
+<entry key="noObstacles2">0</entry>
+<entry key="noObstacles3">0</entry>
+
+<entry key="playerBoatType">1</entry>
+<entry key="playerRobustness">120.0</entry>
+<entry key="playerSpeed">110.0</entry>
+<entry key="playerAcceleration">100.0</entry>
+<entry key="playerManeuverability">80.0</entry>
+<entry key="playerStamina">120.0</entry>
+<entry key="playerPosY">0.0</entry>
+<entry key="playerPosX">0.0</entry>
+<entry key="playerAngle">0.0</entry>
+<entry key="playerCurrentSpeed">0.0</entry>
+<entry key="playerStandings">1</entry>
+<entry key="playerTimeReductions">0.0</entry>
+<entry key="playerPenalties">0.0</entry>
+
+<entry key="Map0Lane0PowerUp0BodyFile">PowerUps/PowerUp2.json</entry>
+<entry key="Map0Lane0PowerUp0TextureName">PowerUps/PowerUp2.png</entry>
+<entry key="Map0Lane0PowerUp0PowerUpName">staminaBoost</entry>
+<entry key="Map0Lane0PowerUp0PosX">0.0</entry>
+<entry key="Map0Lane0PowerUp0PosY">2.0</entry>
+<entry key="Map0Lane0PowerUp0Scale">0.0</entry>
+
+<entry key="opponent0CurrentSpeed">0.0</entry>
+<entry key="opponent1CurrentSpeed">0.0</entry>
+<entry key="opponent0Speed">100.0</entry>
+<entry key="opponent1PosX">8.0</entry>
+<entry key="opponent1PosY">0.0</entry>
+<entry key="opponent1Penalties">0.0</entry>
+<entry key="opponent0PosX">4.0</entry>
+<entry key="opponent0PosY">0.0</entry>
+<entry key="opponent1Angle">0.0</entry>
+<entry key="opponent2CurrentSpeed">0.0</entry>
+<entry key="opponent1TimeReductions">0.0</entry>
+<entry key="opponent1Speed">100.0</entry>
+<entry key="opponent2Maneuverability">100.0</entry>
+<entry key="opponent0Robustness">100.0</entry>
+<entry key="opponent2TimeReductions">0.0</entry>
+<entry key="opponent1BoatType">2</entry>
+<entry key="opponent0TimeReductions">0.0</entry>
+<entry key="opponent2PosY">0.0</entry>
+<entry key="opponent2PosX">10.0</entry>
+<entry key="opponent0Stamina">100.0</entry>
+<entry key="opponent0BoatType">3</entry>
+<entry key="opponent0Angle">0.0</entry>
+<entry key="opponent2Robustness">100.0</entry>
+<entry key="opponent2Stamina">100.0</entry>
+<entry key="opponent1Stamina">100.0</entry>
+<entry key="opponent2BoatType">0</entry>
+<entry key="opponent1Robustness">100.0</entry>
+<entry key="opponent2Acceleration">100.0</entry>
+<entry key="opponent1Acceleration">100.0</entry>
+<entry key="opponent2Penalties">0.0</entry>
+<entry key="opponent1Maneuverability">100.0</entry>
+<entry key="opponent0Acceleration">100.0</entry>
+<entry key="opponent0Maneuverability">100.0</entry>
+<entry key="opponent2Angle">0.0</entry>
+<entry key="opponent0Penalties">0.0</entry>
+<entry key="opponent2Speed">100.0</entry>
+</properties>

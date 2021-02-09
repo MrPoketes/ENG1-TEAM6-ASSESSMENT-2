@@ -104,16 +104,18 @@ public class ResultsUI extends UI {
             result += penalties - timeReductions;
             // Modified code end
             if (result != Float.MAX_VALUE)
-                text += result;
+                //Modified code start
+                text += Math.round(result);
+                //Modified code end
             else
                 text += "DNF";
 
             // Display the text
             resultFonts[i].draw(batch, text, entrySprites[i].getX() + 50, entrySprites[i].getY() + 30);
-            resultFonts[i].draw(batch, "Penalties: " + GameData.penalties[boatNr],
+            resultFonts[i].draw(batch, "Penalties: " + Math.round(GameData.penalties[boatNr]),
                     entrySprites[i].getX() + 300, entrySprites[i].getY() + 30);
             // Added code start
-            resultFonts[i].draw(batch, "Time reductions: " + GameData.timeReductions[boatNr], entrySprites[i].getX() + 500, entrySprites[i].getY() + 30);
+            resultFonts[i].draw(batch, "Time reductions: " + Math.round(GameData.timeReductions[boatNr]), entrySprites[i].getX() + 500, entrySprites[i].getY() + 30);
             // Added code end
         }
         //Added code start

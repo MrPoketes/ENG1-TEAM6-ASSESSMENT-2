@@ -21,6 +21,7 @@ import com.hardgforgif.dragonboatracing.GameData;
 import com.hardgforgif.dragonboatracing.UI.ResultsUI;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +61,15 @@ public class Map {
     private ArrayList<Body> toIncreaseSpeed = new ArrayList<>();
     private ArrayList<Body> toReduceTime = new ArrayList<>();
     private ArrayList<Body> toIncreaseAcceleration = new ArrayList<>();
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private class BodyFloatPair {
+        float floatValue = 5f;
+        Body body;
+
+        public BodyFloatPair(Body body) {
+            this.body = body;
+        }
+    }
+    private ArrayList<BodyFloatPair> toDecreaseAcceleration = new ArrayList<>();
     // Added code end
 
     public Map(String tmxFile, float width, String gameDifficulty) {
@@ -71,13 +80,18 @@ public class Map {
         MapProperties prop = tiledMap.getProperties();
         mapWidth = prop.get("width", Integer.class);
         mapHeight = prop.get("height", Integer.class);
-
         unitScale = screenWidth / mapWidth / 32f;
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, unitScale);
 
         // Added code start
         world = new World(new Vector2(0f, 0f), true);
         createContactListener();
+
+        createMapCollisions("CollisionLayerLeft");
+        createMapCollisions("CollisionLayerRight");
+
+        // Calculate the ratio between pixels, meters and tiles
+        GameData.TILES_TO_METERS = getTilesToMetersRatio();
+        GameData.PIXELS_TO_TILES = 1 / (GameData.METERS_TO_PIXELS * GameData.TILES_TO_METERS);
 
         if (gameDifficulty.equals("easy")) {
             nrObstacles = 20;
@@ -195,7 +209,20 @@ public class Map {
         }
 
         // Iterate through the bodies marked to be damaged after a collision
+        //Added code start
+        //Under rare circumstances a boat can hit an obstacle more than once in a single physics update.
+        //We keep a list of bodies that have already been hit to avoid this.
+        ArrayList<Body> processedBodies = new ArrayList<>();
+        //Added code end
         for (Body body : toUpdateHealth) {
+            //Added code start
+            if (processedBodies.contains(body)) {
+                continue;
+            }
+            else {
+                processedBodies.add(body);
+            }
+            //Added code end
             // if it's the player body
             if (player.boatBody == body && !player.hasFinished()) {
                 // Reduce the health and the speed
@@ -248,6 +275,25 @@ public class Map {
 
         // Advance the game world physics
         world.step(1f / 60f, 6, 2);
+    }
+
+    /**
+     * This method checks the position of all the boats to add penalties if necessary
+     */
+    public void updatePenalties(Player player, AI[] opponents) {
+        // Update the penalties for the player, if he is outside his lane
+        float boatCenter = player.boatSprite.getX() + player.boatSprite.getWidth() / 2;
+        if (!player.hasFinished() && player.robustness > 0 && (boatCenter < player.leftLimit || boatCenter > player.rightLimit)) {
+            GameData.penalties[0] += Gdx.graphics.getDeltaTime();
+        }
+
+        // Update the penalties for the opponents, if they are outside the lane
+        for (int i = 0; i < 3; i++) {
+            boatCenter = opponents[i].boatSprite.getX() + opponents[i].boatSprite.getWidth() / 2;
+            if (!opponents[i].hasFinished() && opponents[i].robustness > 0 && (boatCenter < opponents[i].leftLimit || boatCenter > opponents[i].rightLimit)) {
+                GameData.penalties[i + 1] += Gdx.graphics.getDeltaTime();
+            }
+        }
     }
     // Modified code end
 
@@ -320,14 +366,14 @@ public class Map {
         }
         /**
          *  Iterate through the bodies marked to increase acceleration.
-         *  We create a scheduler to run after 5 seconds and remove the effect.
+         *  We add the body to a list to have the effect reversed in 5 seconds.
          */
 
         for (Body body : toIncreaseAcceleration) {
             if (player.boatBody == body && !player.hasFinished()) {
                 player.speed += 30f;
                 player.acceleration += 50f;
-                scheduler.schedule(decreaseAccelerationTaskPlayer, 5, TimeUnit.SECONDS);
+                toDecreaseAcceleration.add(new BodyFloatPair(body));
             }
             // If the AI picked up the powerUp
             else {
@@ -336,11 +382,37 @@ public class Map {
                         GameData.reduceAIAccelerationList.push(i);
                         opponents[i].speed += 30f;
                         opponents[i].acceleration += 50f;
-                        scheduler.schedule(decreaseAccelerationTaskAI, 5, TimeUnit.SECONDS);
+                        toDecreaseAcceleration.add(new BodyFloatPair(body));
                     }
                 }
             }
         }
+
+        ListIterator<BodyFloatPair> iter = toDecreaseAcceleration.listIterator();
+        while(iter.hasNext()){
+            BodyFloatPair bodyFloatPair = iter.next();
+            if (bodyFloatPair.floatValue <= 0f) {
+                if (player.boatBody == bodyFloatPair.body && !player.hasFinished()) {
+                    player.speed -= 30f;
+                    player.acceleration -= 50f;
+                }
+                // If the AI picked up the powerUp
+                else {
+                    for (int i = 0; i < 3; i++) {
+                        if (opponents[i].boatBody == bodyFloatPair.body && !opponents[i].hasFinished()) {
+                            opponents[i].speed -= 30f;
+                            opponents[i].acceleration -= 50f;
+                        }
+                    }
+                }
+                iter.remove();
+            }
+            else {
+                bodyFloatPair.floatValue -= Gdx.graphics.getDeltaTime();
+            }
+        }
+
+
         // Iterate through the bodies marked to increase speed
         for (Body body : toIncreaseSpeed) {
             if (player.boatBody == body && !player.hasFinished()) {
@@ -410,6 +482,12 @@ public class Map {
      * Renders the map on the screen
      */
     public void renderMap(OrthographicCamera camera, Batch batch) {
+        // Modified code start
+        // This was previously part of the constructor, but was moved so Maps could be created in the testing environment.
+        if (tiledMapRenderer == null) {
+            tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, unitScale);
+        }
+        // Modified code end
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
         batch.begin();
@@ -465,7 +543,7 @@ public class Map {
      */
     // Added code start
     public void createLanesFromLoad(int mapIndex) {
-        Preferences prefs = Gdx.app.getPreferences("savedData");
+        Preferences prefs = GameData.preferences;
         MapLayer leftLayer = tiledMap.getLayers().get("CollisionLayerLeft");
         MapLayer rightLayer = tiledMap.getLayers().get("Lane1");
 

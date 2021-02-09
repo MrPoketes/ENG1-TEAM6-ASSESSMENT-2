@@ -14,8 +14,10 @@ public class AI extends Boat {
     private boolean isTurning = false;
     private float detectedObstacleYPos;
 
-    public AI(float robustness, float stamina, float handling, float speed, int boatType, Lane lane) {
-        super(robustness, stamina, handling, speed, boatType, lane);
+    // Modified code start
+    public AI(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane) {
+        super(robustness, speed, acceleration, maneuverability, boatType, lane);
+        // Modified code end
         this.robustness *= GameData.difficulty[GameData.currentLeg];
         this.stamina *= GameData.difficulty[GameData.currentLeg];
         this.maneuverability *= GameData.difficulty[GameData.currentLeg];
@@ -25,7 +27,7 @@ public class AI extends Boat {
 
     public AI(float robustness, float speed, float acceleration, float maneuverability, int boatType, Lane lane, float currentSpeed, float stamina) {
         super(robustness, speed, acceleration, maneuverability, boatType, lane, currentSpeed, stamina);
-        Preferences prefs = Gdx.app.getPreferences("savedData");
+        Preferences prefs = GameData.preferences;
         int currentLeg = prefs.getInteger("currentLeg");
         this.robustness *= GameData.difficulty[currentLeg];
         this.stamina *= GameData.difficulty[currentLeg];

@@ -63,6 +63,7 @@ public class Obstacle {
         Vector2 position = obstacleBody.getPosition();
         this.posX = position.x;
         this.posY = position.y;
+        // Added code end
 
         scale = obstacleSprite.getWidth() / GameData.METERS_TO_PIXELS * obstacleSprite.getScaleX();
         loader.attachFixture(obstacleBody, "Name", fixtureDef, scale);
